@@ -1,18 +1,18 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, JSX } from 'react';
+import reactLogo from './assets/react.svg';
+import viteLogo from '/vite.svg';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+function App(): JSX.Element {
+  const [count, setCount] = useState<number>(0);
 
   return (
-    <div className="flex flex-col items-center justify-center  bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
       <div className="flex space-x-4">
-        <a href="https://vite.dev" target="_blank">
+        <a href="https://vite.dev" target="_blank" rel="noopener noreferrer">
           <img src={viteLogo} className="w-16 h-16" alt="Vite logo" />
         </a>
-        <a href="https://react.dev" target="_blank">
+        <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
           <img src={reactLogo} className="w-16 h-16" alt="React logo" />
         </a>
       </div>
@@ -32,7 +32,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
