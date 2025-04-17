@@ -19,52 +19,48 @@ npm create vite@latest react-crud-exercise --template react-ts
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p // did not work for me, so I added configs manually, see below
-```
 
-3. Configure Tailwind CSS
-
-```bash
 npm install @tailwindcss/postcss
+npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+npm install -D tailwindcss@3
+npm install -D postcss-import
 ```
 
 ```javascript
-// tailwind.config.js
-/** @type {import('tailwindcss').Config} */
-/** @type {import('tailwindcss').Config} */
-const tailwindConfig = {
+// tailwind.config.cjs
+module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {},
   },
   plugins: [],
 };
-export default tailwindConfig;
 ```
 
 ```javascript
-// postcss.config.cjs
-module.exports = {
+// postcss.config.js
+export default {
   plugins: {
-    '@tailwindcss/postcss': {}, // Changed from 'tailwindcss' to '@tailwindcss/postcss'
+    '@tailwindcss/postcss': {},
     autoprefixer: {},
   },
 };
 ```
 
-4. Add Tailwind CSS to your CSS
+Code to add to your CSS file (e.g., `index.css`):
 
 ```css
-/* src/App.css */
-@tailwind base;
-@tailwind components;
+@import 'tailwindcss/preflight';
 @tailwind utilities;
+@import 'tailwindcss';
 ```
 
-5. Start the development server
+Copilot and Gemini produce utter BS here.
+Look at [these docs](https://tailwindcss.com/docs/installation/using-vite) to get Tailwind working with Vite.
+
+3. Add TypeScript support
 
 ```bash
-npm run dev
+npm install --save-dev @types/react
+npm install --save-dev @types/react-dom
 ```
-
-6. Open your browser and go to [http://localhost:5173](http://localhost:5173)
-7. Open your code editor and start coding!

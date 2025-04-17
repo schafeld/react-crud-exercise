@@ -1,8 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()]
-  // Removed duplicate PostCSS configuration since it's already in postcss.config.js
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
 })
