@@ -1,14 +1,14 @@
 # react-crud-exercise
 
-A sample CRUP app in React
+A sample CRUD app in React
 
-### Developer Notes
+## Developer Notes
 
 This project is [_not_ set up with create-react-app](https://react.dev/blog/2025/02/14/sunsetting-create-react-app).
 
-### Set up React with Vite, Typescript, and Tailwind CSS
+## Set up React with Vite, Typescript, and Tailwind CSS
 
-1. Install Vite and React from scratch
+### 1. Install Vite and React from scratch
 
 See [official docs](https://react.dev/learn/build-a-react-app-from-scratch#vite)
 
@@ -16,7 +16,7 @@ See [official docs](https://react.dev/learn/build-a-react-app-from-scratch#vite)
 npm create vite@latest react-crud-exercise -- --template react-ts
 ```
 
-2. Install Tailwind CSS
+### 2. Install Tailwind CSS
 
 ```bash
 npm install -D tailwindcss postcss autoprefixer
@@ -60,9 +60,24 @@ Code to add to your CSS file (e.g., `index.css`):
 Copilot, Perplexity, and Gemini produced utter BS here.
 Look at [these docs](https://tailwindcss.com/docs/installation/using-vite) to get Tailwind working with Vite.
 
-3. Add TypeScript support
+### 3. Add TypeScript support
 
 ```bash
 npm install --save-dev @types/react
 npm install --save-dev @types/react-dom
 ```
+
+### 4. Add React Router
+
+Follow [these instructions](https://reactrouter.com/start/data/installation) to add React Router to your app.
+
+```bash
+npm i react-router
+npm i react-router-dom
+npm i @types/react-router-dom
+```
+
+## Origin and Inspiration
+
+This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
+](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code deviates considerably as this project is upgraded to use React 19, Vite, and TypeScript.

@@ -2,6 +2,7 @@ import { useState, JSX } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
+import { Link } from 'react-router';
 
 function App(): JSX.Element {
   const [count, setCount] = useState<number>(0);
@@ -30,6 +31,12 @@ function App(): JSX.Element {
       </div>
       <p className="mt-6 text-gray-500">
         Click on the Vite and React logos to learn more
+      </p>
+      <p className="mt-6 text-gray-500">
+        <Link to="/">Go to Home</Link>
+      </p>
+      <p className="mt-6 text-gray-500">
+        <Link to="/about">Go to About</Link>
       </p>
     </div>
   );
