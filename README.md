@@ -8,10 +8,12 @@ This project is [_not_ set up with create-react-app](https://react.dev/blog/2025
 
 ### Set up React with Vite, Typescript, and Tailwind CSS
 
-1. Install Vite
+1. Install Vite and React from scratch
+
+See [official docs](https://react.dev/learn/build-a-react-app-from-scratch#vite)
 
 ```bash
-npm create vite@latest react-crud-exercise --template react-ts
+npm create vite@latest react-crud-exercise -- --template react-ts
 ```
 
 2. Install Tailwind CSS
@@ -55,7 +57,7 @@ Code to add to your CSS file (e.g., `index.css`):
 @import 'tailwindcss';
 ```
 
-Copilot and Gemini produce utter BS here.
+Copilot, Perplexity, and Gemini produced utter BS here.
 Look at [these docs](https://tailwindcss.com/docs/installation/using-vite) to get Tailwind working with Vite.
 
 3. Add TypeScript support
