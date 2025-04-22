@@ -1,5 +1,7 @@
 import { JSX } from 'react';
-import { Link, BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import About from './pages/About';
 import Offers from './pages/Offers';
@@ -13,21 +15,10 @@ function App(): JSX.Element {
   return (
     <Router>
       <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
-        <header className="flex space-x-4">
-          <h1 className="text-4xl font-bold text-gray-800 mt-6">CRUD App</h1>
-        </header>
-        <nav className="mt-4">
-          <Link to="/" className="mx-2 text-blue-500">Home</Link>
-          <Link to="/about" className="mx-2 text-blue-500">About</Link>
-          <Link to="/app" className="mx-2 text-blue-500">App</Link>
-          <Link to="/signin" className="mx-2 text-blue-500">Sign In</Link>
-          <Link to="/signup" className="mx-2 text-blue-500">Sign Up</Link>
-          <Link to="/forgot-password" className="mx-2 text-blue-500">Forgot Password</Link>
-          <Link to="/offers" className="mx-2 text-blue-500">Offers</Link>
-          <Link to="/profile" className="mx-2 text-blue-500">Profile</Link>
-        </nav>
+        <Header></Header>
+        <Navigation />
       </div>
-      
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/app" element={<AppLayout />} />
