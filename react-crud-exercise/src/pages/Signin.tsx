@@ -1,7 +1,7 @@
-// import { Link } from "react-router";
 import { useState } from 'react'
 import { FloatLabel } from 'primereact/floatlabel'
 import { InputText } from 'primereact/inputtext'
+import { Button } from 'primereact/button'
 import illustration from '../assets/kellen-riggin-ZHnTWmiz000-unsplash.jpg'
 
 export default function Signin() {
@@ -9,8 +9,12 @@ export default function Signin() {
     email: '',
     password: ''
   })
-  const {email, password } = formData
-  // const [error, setError] = useState('')
+  const { email, password } = formData
+
+  const [passwordVisible, setPasswordVisible] = useState(false)
+  const togglePasswordVisibility = () => {
+    setPasswordVisible((prev) => !prev)
+  }
 
   return (
     <section className="flex flex-col items-center justify-center bg-gray-100 p-6">
@@ -28,18 +32,7 @@ export default function Signin() {
         </div>
         <div className="lg:w-1/2 w-full wrapper-form order-0 lg:order-1 h-full">
           <form className="flex flex-col space-y-4 h-full pt-6">
-            {/* <input
-              type="email"
-              value={email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })
-              }
-              placeholder="Email"
-              className="mt-0 block w-full px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black"
-            /> */}
-
-            <FloatLabel
-              className='w-full mb-8'
-            >
+            <FloatLabel className='w-full mb-8'>
               <InputText
                 id="email"
                 type="email"
@@ -52,36 +45,33 @@ export default function Signin() {
               <label
                 htmlFor="email"
                 className="mt-0 block px-0 border-0 w-fit text-gray-500 transition-all duration-200 ease-in-out translate-y-[-8px]"
-                >
+              >
                 Email
               </label>
             </FloatLabel>
 
-            {/* <input
-              type="password"
-              value={password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="Password"
-              className="mt-0 block w-full px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black"
-            /> */}
-
-            <FloatLabel
-              className='w-full mb-8'
-            >
+            <FloatLabel className="w-full mb-8 relative">
               <InputText
                 id="password"
-                type="password"
+                type={passwordVisible ? "text" : "password"}
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="mt-0 block px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black w-full"
+                className="mt-0 block px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black w-full pr-10"
               />
               <label
                 htmlFor="password"
                 className="mt-0 block px-0 border-0 w-fit text-gray-500 transition-all duration-200 ease-in-out translate-y-[-8px]"
-                >
+              >
                 Password
               </label>
+              <Button
+                icon={passwordVisible ? "pi pi-eye" : "pi pi-eye-slash"}
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-0 bottom-1 text-gray-500 hover:text-gray-700 focus:outline-none p-1 text-sm"
+                aria-label={passwordVisible ? "Hide password" : "Show password"}
+              />
             </FloatLabel>
 
             <button
