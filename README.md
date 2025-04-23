@@ -81,3 +81,11 @@ npm i @types/react-router-dom
 
 This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 ](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code deviates considerably as this project is upgraded to use React 19, Vite, and TypeScript.
+
+## License
+
+This project's code is licensed under : Currently not licensed.
+
+Images by Unsplash are licensed under the [Unsplash License](https://unsplash.com/license):
+
+- ["Road through trees", Kellen Riggen](https://unsplash.com/de/fotos/eine-kurvige-strasse-mit-einem-baum-an-der-seite-ZHnTWmiz000)
