@@ -32,14 +32,14 @@ export default function Signin() {
               onChange={(e) => setFormData({ ...formData, email: e.target.value })
               }
               placeholder="Email"
-              className="border border-gray-300 p-2 rounded"
+              className="mt-0 block w-full px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black"
             />
             <input
               type="password"
               value={password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="Password"
-              className="border border-gray-300 p-2 rounded"
+              className="mt-0 block w-full px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black"
             />
             <button
               type="submit"

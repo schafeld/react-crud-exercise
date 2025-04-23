@@ -60,6 +60,23 @@ Code to add to your CSS file (e.g., `index.css`):
 Copilot, Perplexity, and Gemini produced utter BS here.
 Look at [these docs](https://tailwindcss.com/docs/installation/using-vite) to get Tailwind working with Vite.
 
+Also added [Tailwind CSS Forms](https://github.com/tailwindlabs/tailwindcss-forms) for better form styling.
+
+```bash
+npm install -D @tailwindcss/forms
+```
+
+```javascript
+// tailwind.config.cjs
+module.exports = {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [require('@tailwindcss/forms')],
+};
+```
+
 ### 3. Add TypeScript support
 
 ```bash
