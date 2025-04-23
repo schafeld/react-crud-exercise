@@ -1,7 +1,15 @@
 // import { Link } from "react-router";
+import { useState } from 'react'
 import illustration from '../assets/kellen-riggin-ZHnTWmiz000-unsplash.jpg'
 
 export default function Signin() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  })
+  const {email, password } = formData
+  // const [error, setError] = useState('')
+
   return (
     <section className="flex flex-col items-center justify-center bg-gray-100 p-6">
       <h1 className="text-4xl font-bold text-gray-800 mt-6">Sign In</h1>
@@ -20,11 +28,16 @@ export default function Signin() {
           <form className="flex flex-col space-y-4 h-full">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })
+              }
               placeholder="Email"
               className="border border-gray-300 p-2 rounded"
             />
             <input
               type="password"
+              value={password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="Password"
               className="border border-gray-300 p-2 rounded"
             />
