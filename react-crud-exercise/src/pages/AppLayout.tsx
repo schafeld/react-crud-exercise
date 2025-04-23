@@ -18,7 +18,7 @@ function AppLayout(): JSX.Element {
           <img src={reactLogo} className="w-16 h-16" alt="React logo" />
         </a>
       </div>
-      <h1 className="text-4xl font-bold text-gray-800 mt-6">Vite + React + Typescript + Tailwind CSS</h1>
+      <h1 className="text-4xl font-bold text-gray-800 mt-6">Vite + React + Typescript + Tailwind CSS + PrimeReact</h1>
       <div className="card mt-6 p-6 bg-white shadow-md rounded-lg">
         <button
           className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600"
