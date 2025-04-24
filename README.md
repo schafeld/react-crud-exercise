@@ -107,3 +107,4 @@ Images by Unsplash are licensed under the [Unsplash License](https://unsplash.co
 
 - ["Road through trees", Kellen Riggen](https://unsplash.com/de/fotos/eine-kurvige-strasse-mit-einem-baum-an-der-seite-ZHnTWmiz000)
 - ["Welcome aboard, life saver", Adam Cai](https://unsplash.com/de/fotos/ein-rettungsschwimmer-der-an-einer-wand-hangt-mit-einem-willkommensschild-an-bord-_Sp4jNiW_j0)
+- ["Welcome Back", Nick Fewings](https://unsplash.com/de/fotos/ein-willkommensschild-mit-einem-smiley-bTRsbY5RLr4)
