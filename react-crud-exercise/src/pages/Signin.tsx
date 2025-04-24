@@ -90,7 +90,7 @@ export default function Signin() {
           </div>
 
           <div className="flex flex-col items-center justify-center mt-6">
-            <OAuth />
+            <OAuth label="Sign In with Google" />
           </div>
 
           <div className="flex flex-col items-center justify-center mt-6">
