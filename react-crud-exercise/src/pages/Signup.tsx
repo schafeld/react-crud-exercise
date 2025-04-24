@@ -7,10 +7,12 @@ import illustration from '../assets/adam-cai-_Sp4jNiW_j0-unsplash.jpg'
 
 export default function Signup() {
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastname: '',
     email: '',
     password: ''
   })
-  const { email, password } = formData
+  const { firstName, lastname, email, password } = formData
 
   const [passwordVisible, setPasswordVisible] = useState(false)
   const togglePasswordVisibility = () => {
@@ -33,12 +35,44 @@ export default function Signup() {
         </div>
         <div className="lg:w-1/2 w-full wrapper-form order-0 lg:order-1 h-full">
           <form className="flex flex-col space-y-4 h-full pt-6">
-            <FloatLabel className='w-full mb-8'>
+            <FloatLabel className="w-full mb-8">
+              <InputText
+                id="firstName"
+                type="text"
+                autoFocus
+                value={firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="mt-0 block px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black w-full"
+              />
+              <label
+                htmlFor="firstName"
+                className="mt-0 block px-0 border-0 w-fit text-gray-500 transition-all duration-200 ease-in-out translate-y-[-8px]"
+              >
+                First Name
+              </label>
+            </FloatLabel>
+
+            <FloatLabel className="w-full mb-8">
+              <InputText
+                id="lastname"
+                type="text"
+                value={lastname}
+                onChange={(e) => setFormData({ ...formData, lastname: e.target.value })}
+                className="mt-0 block px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black w-full"
+              />
+              <label
+                htmlFor="lastname"
+                className="mt-0 block px-0 border-0 w-fit text-gray-500 transition-all duration-200 ease-in-out translate-y-[-8px]"
+              >
+                Last Name
+              </label>
+            </FloatLabel>
+
+            <FloatLabel className="w-full mb-8">
               <InputText
                 id="email"
                 type="email"
                 autoComplete="email"
-                autoFocus
                 value={email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="mt-0 block px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black w-full"
@@ -67,13 +101,13 @@ export default function Signup() {
                 Password
               </label>
               {password.length > 0 && (
-              <Button
-                icon={passwordVisible ? "pi pi-eye" : "pi pi-eye-slash"}
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute right-0 bottom-1 text-gray-500 hover:text-gray-700 focus:outline-none p-1 text-sm"
-                aria-label={passwordVisible ? "Hide password" : "Show password"}
-              />
+                <Button
+                  icon={passwordVisible ? "pi pi-eye" : "pi pi-eye-slash"}
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-0 bottom-1 text-gray-500 hover:text-gray-700 focus:outline-none p-1 text-sm"
+                  aria-label={passwordVisible ? "Hide password" : "Show password"}
+                />
               )}
             </FloatLabel>
 
@@ -105,7 +139,7 @@ export default function Signup() {
                 Forgot your password?
               </a>
             </p>
-            </div>
+          </div>
         </div>
       </div>
     </section>
