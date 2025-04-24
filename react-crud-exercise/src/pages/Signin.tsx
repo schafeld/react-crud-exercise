@@ -83,6 +83,21 @@ export default function Signin() {
               Sign In
             </button>
           </form>
+
+          <div className="flex flex-col items-center justify-center mt-6">
+            <p className="text-gray-500">
+              Don't have an account?{' '}
+              <a href="/signup" className="text-blue-500 hover:underline">
+                Sign Up
+              </a>
+            </p>
+            <p className="text-gray-500 mt-3">
+              Forgot your password?{' '}
+              <a href="/forgot-password" className="text-blue-500 hover:underline">
+                Reset it
+              </a>
+            </p>
+            </div>
         </div>
       </div>
     </section>
