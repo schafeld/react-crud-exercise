@@ -78,7 +78,7 @@ export default function Signin() {
 
             <button
               type="submit"
-              className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200"
+              className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200 hover:shadow-lg active:bg-blue-800 active:shadow-none"
             >
               Sign In
             </button>
