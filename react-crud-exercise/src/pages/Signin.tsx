@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { FloatLabel } from 'primereact/floatlabel'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
+import OAuth from '../components/OAuth'
 import illustration from '../assets/kellen-riggin-ZHnTWmiz000-unsplash.jpg'
 
 export default function Signin() {
@@ -83,6 +84,14 @@ export default function Signin() {
               Sign In
             </button>
           </form>
+
+          <div className="flex items-center mt-2 before:border-gray-300 before:flex-1 before:border-t after:border-gray-300 after:border-t after:flex-1">
+            <span className="text-center text-gray-500 mx-4">or</span>
+          </div>
+
+          <div className="flex flex-col items-center justify-center mt-6">
+            <OAuth />
+          </div>
 
           <div className="flex flex-col items-center justify-center mt-6">
             <p className="text-gray-500">
