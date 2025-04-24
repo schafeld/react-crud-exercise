@@ -28,8 +28,8 @@ export default function Signup() {
             src={illustration}
             className="w-full h-full object-cover rounded max-h-320 lg:max-h-96"
             alt="Photo of a winding road with a tree on the side"
-            data-attribution-text="Photo by Kellen Riggin on Unsplash"
-            data-attribution-link="https://unsplash.com/de/fotos/eine-kurvige-strasse-mit-einem-baum-an-der-seite-ZHnTWmiz000"
+            data-attribution-text="Photo by Adam Cai on Unsplash"
+            data-attribution-link="https://unsplash.com/de/fotos/ein-rettungsschwimmer-der-an-einer-wand-hangt-mit-einem-willkommensschild-an-bord-_Sp4jNiW_j0"
             data-license="https://unsplash.com/license"
           />
         </div>
