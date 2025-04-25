@@ -77,6 +77,7 @@ export default function Signup() {
   return (
     <section className="flex flex-col items-center justify-center bg-gray-100 p-6">
 
+
       <Toast
         ref={toast}
         content={({ message }) => (
@@ -98,7 +99,8 @@ export default function Signup() {
           />
           </div>
         )}
-        className="w-150 max-w-md bg-amber-100 shadow-lg rounded-lg p-4 opacity-100"
+        // There must be NO padding (e.g. p-4) here, else the toast will not disappear completely.
+        className="w-150 max-w-md bg-amber-100 shadow-lg rounded-lg opacity-100"
         position="top-center"
       />
 
