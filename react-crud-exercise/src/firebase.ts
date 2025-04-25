@@ -13,7 +13,7 @@ interface FirebaseConfig {
 }
 
 const firebaseConfig: FirebaseConfig = {
-  apiKey: 'AIzaSyCnmALKr_bgiquwX4YnA72kNBNxRqtsST8',
+  apiKey: '', // Add your Firebase API key here
   authDomain: 'react-crud-exercise.firebaseapp.com',
   projectId: 'react-crud-exercise',
   storageBucket: 'react-crud-exercise.firebasestorage.app',
