@@ -105,6 +105,11 @@ npm install firebase
 
 ```
 
+Firebase documentation:
+
+- [Firebase Authentication](https://firebase.google.com/docs/auth/web/start)
+- [Firestore](https://firebase.google.com/docs/firestore/quickstart)
+
 ## Origin and Inspiration
 
 This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
