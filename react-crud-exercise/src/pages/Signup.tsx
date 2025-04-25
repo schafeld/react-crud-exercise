@@ -4,8 +4,8 @@ import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import OAuth from '../components/OAuth'
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
-import { serverTimestamp } from 'firebase/firestore'
-import { auth } from '../firebase.ts'
+import { serverTimestamp, doc, setDoc } from 'firebase/firestore'
+import { auth, db } from '../firebase.ts'
 import illustration from '../assets/adam-cai-_Sp4jNiW_j0-unsplash.jpg'
 
 export default function Signup() {
@@ -27,6 +27,7 @@ export default function Signup() {
     try {
       const { password, ...formDataCopy } = { ...formData, timestamp: serverTimestamp() } // Remove password from formDataCopy. Add timestamp to formDataCopy.
       console.log('Form data COPY:', formDataCopy)
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -41,6 +42,10 @@ export default function Signup() {
       }
       const user = userCredential.user
       console.info('User created:', user)
+
+      await setDoc(doc(db, 'users', user.uid), formDataCopy)
+      console.info('User data saved to Firestore:', formDataCopy)
+
     } catch (error) {
       console.error('Error during form submission:', error)
       // Todo: Handle error (e.g., show a notification)
