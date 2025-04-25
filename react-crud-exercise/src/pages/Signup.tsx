@@ -3,18 +3,19 @@ import { FloatLabel } from 'primereact/floatlabel'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import OAuth from '../components/OAuth'
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { serverTimestamp } from 'firebase/firestore'
 import { auth } from '../firebase.ts'
 import illustration from '../assets/adam-cai-_Sp4jNiW_j0-unsplash.jpg'
 
 export default function Signup() {
   const [formData, setFormData] = useState({
     firstName: '',
-    lastname: '',
+    lastName: '',
     email: '',
     password: ''
-  })
-  const { firstName, lastname, email, password } = formData
+  });
+  const { firstName, lastName, email, password } = formData;
 
   const [passwordVisible, setPasswordVisible] = useState(false)
   const togglePasswordVisibility = () => {
@@ -24,16 +25,25 @@ export default function Signup() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      const { password, ...formDataCopy } = { ...formData, timestamp: serverTimestamp() } // Remove password from formDataCopy. Add timestamp to formDataCopy.
+      console.log('Form data COPY:', formDataCopy)
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       )
+      if (auth.currentUser) {
+        updateProfile(auth.currentUser, {
+          displayName: `${firstName} ${lastName}`
+        })
+      } else {
+        console.error('No authenticated user found.')
+      }
       const user = userCredential.user
-      console.log('User created:', user)
+      console.info('User created:', user)
     } catch (error) {
       console.error('Error during form submission:', error)
-      // Handle error (e.g., show a notification)
+      // Todo: Handle error (e.g., show a notification)
     }
   }
 
@@ -76,8 +86,8 @@ export default function Signup() {
               <InputText
                 id="lastname"
                 type="text"
-                value={lastname}
-                onChange={(e) => setFormData({ ...formData, lastname: e.target.value })}
+                value={lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                 className="mt-0 block px-0.5 border-0 border-b-2 border-gray-200 focus:ring-0 focus:outline-none focus:border-black w-full"
               />
               <label
