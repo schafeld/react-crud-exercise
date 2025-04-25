@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { FloatLabel } from 'primereact/floatlabel'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
@@ -16,6 +17,7 @@ export default function Signup() {
     password: ''
   });
   const { firstName, lastName, email, password } = formData;
+  const navigate = useNavigate()
 
   const [passwordVisible, setPasswordVisible] = useState(false)
   const togglePasswordVisibility = () => {
@@ -45,7 +47,7 @@ export default function Signup() {
 
       await setDoc(doc(db, 'users', user.uid), formDataCopy)
       console.info('User data saved to Firestore:', formDataCopy)
-
+      navigate('/') // Todo: Redirect to a success page or dashboard
     } catch (error) {
       console.error('Error during form submission:', error)
       // Todo: Handle error (e.g., show a notification)
