@@ -3,6 +3,8 @@ import { FloatLabel } from 'primereact/floatlabel'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import OAuth from '../components/OAuth'
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { auth } from '../firebase.ts'
 import illustration from '../assets/adam-cai-_Sp4jNiW_j0-unsplash.jpg'
 
 export default function Signup() {
@@ -17,6 +19,22 @@ export default function Signup() {
   const [passwordVisible, setPasswordVisible] = useState(false)
   const togglePasswordVisibility = () => {
     setPasswordVisible((prev) => !prev)
+  }
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+      const user = userCredential.user
+      console.log('User created:', user)
+    } catch (error) {
+      console.error('Error during form submission:', error)
+      // Handle error (e.g., show a notification)
+    }
   }
 
   return (
@@ -34,7 +52,9 @@ export default function Signup() {
           />
         </div>
         <div className="lg:w-1/2 w-full wrapper-form order-0 lg:order-1 h-full">
-          <form className="flex flex-col space-y-4 h-full pt-6">
+          <form className="flex flex-col space-y-4 h-full pt-6"
+            onSubmit={onSubmit}
+          >
             <FloatLabel className="w-full mb-8">
               <InputText
                 id="firstName"
