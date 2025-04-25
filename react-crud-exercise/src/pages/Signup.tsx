@@ -92,7 +92,7 @@ export default function Signup() {
             icon="pi pi-times"
             className="mt-2 p-button-secondary"
             onClick={() => {
-                toast.current?.clear()
+              toast.current?.clear()
               }
             }
           />
