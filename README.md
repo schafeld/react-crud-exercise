@@ -94,6 +94,17 @@ npm i react-router-dom
 npm i @types/react-router-dom
 ```
 
+## Firebase
+
+[Firebase console](https://console.firebase.google.com/project/react-crud-exercise)
+
+This project uses Firebase for authentication and Firestore for the database. Follow [Firebase instructions](https://console.firebase.google.com/project/react-crud-exercise/overview).
+
+```bash
+npm install firebase
+
+```
+
 ## Origin and Inspiration
 
 This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
