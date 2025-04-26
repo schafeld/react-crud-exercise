@@ -30,7 +30,7 @@ export default function Signup() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const { password, ...formDataCopy } = { ...formData, timestamp: serverTimestamp() }
+      const { password, ...formDataCopy } = { ...formData, timestamp: serverTimestamp() } as { timestamp: ReturnType<typeof serverTimestamp>; firstName: string; lastName: string; email: string; password: string; displayName?: string }
       console.log('Form data COPY:', formDataCopy)
 
       const userCredential = await createUserWithEmailAndPassword(
@@ -47,6 +47,9 @@ export default function Signup() {
       }
       const user = userCredential.user
       console.info('User created:', user)
+
+      // Add displayName to formDataCopy
+      formDataCopy.displayName = `${firstName} ${lastName}`
 
       await setDoc(doc(db, 'users', user.uid), formDataCopy)
       console.info('User data saved to Firestore:', formDataCopy)
