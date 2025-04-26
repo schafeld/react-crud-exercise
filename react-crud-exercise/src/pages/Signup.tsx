@@ -50,7 +50,20 @@ export default function Signup() {
 
       await setDoc(doc(db, 'users', user.uid), formDataCopy)
       console.info('User data saved to Firestore:', formDataCopy)
-      navigate('/')
+
+      toast.current?.show({
+        severity: 'success',
+        summary: 'User Registration Successful',
+        detail: 'You have successfully registered.',
+        life: 5000
+      })
+      console.info('User registration successful:', formDataCopy)
+      // Redirect to the home page after successful signup with a delay
+      setTimeout(() => {
+        toast.current?.clear()
+        navigate('/')
+      }, 5000)
+
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error('Error during form submission:', error.message)
