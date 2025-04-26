@@ -53,14 +53,12 @@ export default function Signup() {
       navigate('/')
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error('Error during form submission:', error)
+        console.error('Error during form submission:', error.message)
         toast.current?.show({
           severity: 'error',
           summary: 'User Registration Failed',
           detail: error.message || 'An error occurred during signup.',
-          life: 5000000,
-          sticky: true,
-          closable: true
+          life: 5000
         })
       } else {
         console.error('Unexpected error during form submission:', error)
@@ -81,26 +79,27 @@ export default function Signup() {
       <Toast
         ref={toast}
         content={({ message }) => (
-          <div className="flex flex-col items-center">
-          <h3 className="text-gray-500 mt-2">
+            <div className="flex flex-col items-center">
+            <h3 className="text-gray-500 mt-2 font-bold">
             {message.summary}
-          </h3>
-          <p className="text-gray-500 mt-2">
+            </h3>
+            <p className="text-gray-500 mt-2">
             {message.detail}
-          </p>
-          <Button
-            label="Close"
-            icon="pi pi-times"
-            className="mt-2 p-button-secondary"
-            onClick={() => {
-              toast.current?.clear()
+            </p>
+            <Button
+              label="Close"
+              icon="pi pi-times mr-2"
+              className="mt-2 p-button-secondary mb-4"
+              iconPos="left"
+              onClick={() => {
+                toast.current?.clear()
               }
-            }
-          />
-          </div>
+              }
+            />
+            </div>
         )}
         // There must be NO padding (e.g. p-4) here, else the toast will not disappear completely.
-        className="w-150 max-w-md bg-amber-100 shadow-lg rounded-lg opacity-100"
+        className="w-150 max-w-md bg-amber-100 shadow-lg rounded-lg opacity-100 mt-4"
         position="top-center"
       />
 
