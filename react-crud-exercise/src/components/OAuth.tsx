@@ -3,14 +3,12 @@ import { Button } from 'primereact/button';
 import 'primereact/resources/primereact.min.css'; // PrimeReact core CSS
 import 'primeicons/primeicons.css';
 import { GoogleAuthProvider } from 'firebase/auth';
-import { serverTimestamp, doc, setDoc } from 'firebase/firestore'
+import { serverTimestamp, doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase.ts';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { Toast } from 'primereact/toast'
+import { Toast } from 'primereact/toast';
 import { useRef } from 'react';
-
-
 
 type OAuthProps = {
   label?: string;
@@ -21,16 +19,10 @@ export default function OAuth({ label = "Continue with Google" }: OAuthProps) {
   const toast = useRef<Toast>(null);
 
   const handleGoogleSignIn = () => {
-    // console.log('Google Sign-In clicked')
-    // Add your Google Sign-In logic here
     try {
       const provider = new GoogleAuthProvider();
       signInWithPopup(auth, provider)
         .then((result) => {
-          // // This gives you a Google Access Token. You can use it to access Google APIs.
-          // const credential = GoogleAuthProvider.credentialFromResult(result);
-          // const token = credential?.accessToken;
-          // The signed-in user info.
           const user = result.user;
           console.log('Google Sign-In successful:', user);
 
@@ -43,19 +35,36 @@ export default function OAuth({ label = "Continue with Google" }: OAuthProps) {
             uid: user.uid,
             timestamp: serverTimestamp()
           };
-          setDoc(doc(db, 'users', user.uid), userData)
-            .then(() => {
-              console.log('User data saved to Firestore:', userData);
+
+          const userRef = doc(db, 'users', user.uid);
+          getDoc(userRef)
+            .then((docSnapshot) => {
+              if (docSnapshot.exists()) {
+                console.info('User ID already exists in Firestore.');
+                // toast.current?.show({
+                //   severity: 'error',
+                //   summary: 'Duplicate User ID',
+                //   detail: 'A user with this ID already exists.',
+                //   life: 5000
+                // });
+              } else {
+                setDoc(userRef, userData)
+                  .then(() => {
+                    console.log('User data saved to Firestore:', userData);
+                  })
+                  .catch((error) => {
+                    console.error('Error saving user data to Firestore:', error);
+                    toast.current?.show({
+                      severity: 'error',
+                      summary: 'Error Saving User Data',
+                      detail: 'An error occurred while saving user data.',
+                      life: 5000
+                    });
+                  });
+              }
             })
             .catch((error) => {
-              console.error('Error saving user data to Firestore:', error);
-              // Display error message
-              toast.current?.show({
-                severity: 'error',
-                summary: 'Error Saving User Data',
-                detail: 'An error occurred while saving user data.',
-                life: 5000
-              });
+              console.error('Error checking for existing user ID:', error);
             });
 
           // Display success message and navigate to home page after a delay
@@ -88,7 +97,6 @@ export default function OAuth({ label = "Continue with Google" }: OAuthProps) {
         life: 5000
       });
     }
-
   };
 
   return (
