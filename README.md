@@ -2,6 +2,9 @@
 
 A sample CRUD app in React
 
+⚠️ **This project is a work in progress. It is not yet complete.**
+It is (going to be) a simple CRUD app that allows users to create, read, update, and delete data. The app is built with React, Vite, TypeScript, and Tailwind CSS. It uses Firebase for authentication and Firestore for the database. _It will run, but you'll need your own Firebase credentials/database._
+
 ## Developer Notes
 
 This project is [_not_ set up with create-react-app](https://react.dev/blog/2025/02/14/sunsetting-create-react-app).
@@ -113,7 +116,7 @@ Firebase documentation:
 ## Origin and Inspiration
 
 This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
-](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code deviates considerably as this project is upgraded to use React 19, Vite, and TypeScript.
+](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code deviates considerably as this project is upgraded to use React 19, Vite, PrimeReact (with PrimeIcons), and TypeScript.
 
 ## License
 
