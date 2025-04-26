@@ -3,7 +3,8 @@ import { Button } from 'primereact/button';
 import 'primereact/resources/primereact.min.css'; // PrimeReact core CSS
 import 'primeicons/primeicons.css';
 import { GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '../firebase.ts';
+import { serverTimestamp, doc, setDoc } from 'firebase/firestore'
+import { auth, db } from '../firebase.ts';
 import { signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast'
@@ -32,6 +33,30 @@ export default function OAuth({ label = "Continue with Google" }: OAuthProps) {
           // The signed-in user info.
           const user = result.user;
           console.log('Google Sign-In successful:', user);
+
+          // Save user data to Firestore
+          const userData = {
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            providerId: user.providerData[0].providerId,
+            uid: user.uid,
+            timestamp: serverTimestamp()
+          };
+          setDoc(doc(db, 'users', user.uid), userData)
+            .then(() => {
+              console.log('User data saved to Firestore:', userData);
+            })
+            .catch((error) => {
+              console.error('Error saving user data to Firestore:', error);
+              // Display error message
+              toast.current?.show({
+                severity: 'error',
+                summary: 'Error Saving User Data',
+                detail: 'An error occurred while saving user data.',
+                life: 5000
+              });
+            });
 
           // Display success message and navigate to home page after a delay
           toast.current?.show({
