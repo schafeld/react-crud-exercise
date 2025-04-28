@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { FloatLabel } from 'primereact/floatlabel'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
+import { Toast } from 'primereact/toast'
 import OAuth from '../components/OAuth'
 import illustration from '../assets/kellen-riggin-ZHnTWmiz000-unsplash.jpg'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
@@ -20,19 +21,32 @@ export default function Signin() {
   }
 
   const navigate = useNavigate()
-  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const toast = useRef<Toast>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
     setLoading(true)
     const auth = getAuth()
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      navigate('/') // Redirect to home or dashboard
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in')
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Sign In Successful',
+        detail: 'You have successfully signed in.',
+        life: 3000
+      })
+      setTimeout(() => {
+        toast.current?.clear()
+        navigate('/')
+      }, 3000)
+    } catch (err: unknown) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Sign In Failed',
+        detail: err instanceof Error ? err.message : 'Failed to sign in.',
+        life: 5000
+      })
     } finally {
       setLoading(false)
     }
@@ -40,6 +54,31 @@ export default function Signin() {
 
   return (
     <section className="flex flex-col items-center justify-center bg-gray-100 p-6">
+      <Toast
+        ref={toast}
+        content={({ message }) => (
+          <div className="flex flex-col items-center">
+            <h3 className="text-gray-500 mt-2 font-bold">
+              {message.summary}
+            </h3>
+            <p className="text-gray-500 mt-2">
+              {message.detail}
+            </p>
+            <Button
+              label="Close"
+              icon="pi pi-times mr-2"
+              className="mt-2 p-button-secondary mb-4"
+              iconPos="left"
+              onClick={() => {
+                toast.current?.clear()
+              }}
+            />
+          </div>
+        )}
+        className="w-150 max-w-md bg-amber-100 shadow-lg rounded-lg opacity-100 mt-4"
+        position="top-center"
+      />
+
       <h1 className="text-4xl font-bold text-gray-800 mt-6">Sign In</h1>
       <div className="wrapper flex flex-col lg:flex-row w-full lg:space-x-4 space-y-4 lg:space-y-0 mt-6">
         <div className="lg:w-1/2 w-full wrapper-illustration order-1 lg:order-0 mt-4 lg:mt-0">
@@ -88,19 +127,15 @@ export default function Signin() {
                 Password
               </label>
               {password.length > 0 && (
-              <Button
-                icon={passwordVisible ? "pi pi-eye" : "pi pi-eye-slash"}
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute right-0 bottom-1 text-gray-500 hover:text-gray-700 focus:outline-none p-1 text-sm"
-                aria-label={passwordVisible ? "Hide password" : "Show password"}
-              />
+                <Button
+                  icon={passwordVisible ? "pi pi-eye" : "pi pi-eye-slash"}
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-0 bottom-1 text-gray-500 hover:text-gray-700 focus:outline-none p-1 text-sm"
+                  aria-label={passwordVisible ? "Hide password" : "Show password"}
+                />
               )}
             </FloatLabel>
-
-            {error && (
-              <div className="text-red-500 text-sm mb-2">{error}</div>
-            )}
 
             <button
               type="submit"
@@ -132,7 +167,7 @@ export default function Signin() {
                 Reset it
               </a>
             </p>
-            </div>
+          </div>
         </div>
       </div>
     </section>
