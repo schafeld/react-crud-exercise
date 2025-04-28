@@ -4,6 +4,8 @@ import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import OAuth from '../components/OAuth'
 import illustration from '../assets/kellen-riggin-ZHnTWmiz000-unsplash.jpg'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { useNavigate } from 'react-router-dom'
 
 export default function Signin() {
   const [formData, setFormData] = useState({
@@ -15,6 +17,25 @@ export default function Signin() {
   const [passwordVisible, setPasswordVisible] = useState(false)
   const togglePasswordVisibility = () => {
     setPasswordVisible((prev) => !prev)
+  }
+
+  const navigate = useNavigate()
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    const auth = getAuth()
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      navigate('/') // Redirect to home or dashboard
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -32,7 +53,7 @@ export default function Signin() {
           />
         </div>
         <div className="lg:w-1/2 w-full wrapper-form order-0 lg:order-1 h-full">
-          <form className="flex flex-col space-y-4 h-full pt-6">
+          <form className="flex flex-col space-y-4 h-full pt-6" onSubmit={handleSubmit}>
             <FloatLabel className='w-full mb-8'>
               <InputText
                 id="email"
@@ -77,11 +98,16 @@ export default function Signin() {
               )}
             </FloatLabel>
 
+            {error && (
+              <div className="text-red-500 text-sm mb-2">{error}</div>
+            )}
+
             <button
               type="submit"
               className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-200 hover:shadow-lg active:bg-blue-800 active:shadow-none"
+              disabled={loading}
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 
