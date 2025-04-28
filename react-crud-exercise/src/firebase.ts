@@ -24,7 +24,7 @@ const firebaseConfig: FirebaseConfig = {
   measurementId: "G-VMVZ168M8Q"
 };
 
-const app: FirebaseApp = initializeApp(firebaseConfig);
+export const app: FirebaseApp = initializeApp(firebaseConfig);
 
 export const db: Firestore = getFirestore(app);
 export const auth: Auth = getAuth(app);
