@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom"; // Correct import for react-router v6+
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { getAuth, onAuthStateChanged, User, updateProfile } from "firebase/auth"; // Import updateProfile
 import { useState, useEffect } from "react";
 import { app } from "../firebase"; // Assuming firebase is initialized in ../firebase
-import { getFirestore, doc, getDoc, Timestamp } from "firebase/firestore"; // Import Firestore functions
+import { getFirestore, doc, getDoc, Timestamp, updateDoc, setDoc } from "firebase/firestore"; // Import Firestore functions including updateDoc and setDoc
 
 // Define an interface for the additional user data from Firestore
 interface UserData {
   timestamp?: Timestamp;
   providerId?: string;
+  displayName?: string; // Add displayName here if you store it in Firestore
   // Add other fields from your 'users' collection if needed
 }
 
@@ -15,6 +16,9 @@ export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null); // State for Firestore data
   const [loading, setLoading] = useState(true);
+  const [editingName, setEditingName] = useState(false); // State to track editing mode (optional)
+  const [displayName, setDisplayName] = useState(""); // State for editable display name
+  const [isSaving, setIsSaving] = useState(false); // State to track saving process
   const auth = getAuth(app);
   const db = getFirestore(app); // Get Firestore instance
 
@@ -22,22 +26,41 @@ export default function Profile() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => { // Make the callback async
       setUser(currentUser);
       if (currentUser) {
+        setDisplayName(currentUser.displayName || ""); // Initialize editable display name
         // Fetch additional user data from Firestore
         const userDocRef = doc(db, "users", currentUser.uid);
         try {
           const docSnap = await getDoc(userDocRef);
           if (docSnap.exists()) {
-            setUserData(docSnap.data() as UserData); // Set Firestore data
+            const fetchedData = docSnap.data() as UserData;
+            setUserData(fetchedData);
+            // Optionally sync Firestore displayName if it exists and differs
+            // if (fetchedData.displayName && fetchedData.displayName !== currentUser.displayName) {
+            //   setDisplayName(fetchedData.displayName);
+            // }
           } else {
-            console.log("No such document in Firestore!");
-            setUserData(null); // Reset if document doesn't exist
+            console.log("No such document in Firestore! Creating one.");
+            // Optionally create the document if it doesn't exist
+            // await setDoc(userDocRef, {
+            //   email: currentUser.email,
+            //   displayName: currentUser.displayName,
+            //   timestamp: serverTimestamp(), // Use serverTimestamp for creation time
+            //   providerId: currentUser.providerData[0]?.providerId || 'password',
+            // });
+            // const newDocSnap = await getDoc(userDocRef); // Re-fetch after creation
+            // if (newDocSnap.exists()) {
+            //     setUserData(newDocSnap.data() as UserData);
+            // } else {
+                 setUserData(null); // Reset if document doesn't exist or creation failed
+            // }
           }
         } catch (error) {
-          console.error("Error fetching user data from Firestore:", error);
+          console.error("Error fetching/creating user data from Firestore:", error);
           setUserData(null); // Reset on error
         }
       } else {
         setUserData(null); // Clear Firestore data if no user is logged in
+        setDisplayName(""); // Clear display name if no user
       }
       setLoading(false);
     });
@@ -45,6 +68,41 @@ export default function Profile() {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [auth, db]); // Add db to dependency array
+
+  // Handle Display Name Update
+  const handleSaveDisplayName = async () => {
+    if (!user || !displayName || isSaving) return; // Prevent saving if no user, empty name, or already saving
+
+    setIsSaving(true);
+    const userDocRef = doc(db, "users", user.uid);
+
+    try {
+      // 1. Update Firestore document
+      //    Choose ONE of the following: updateDoc or setDoc with merge
+      //    updateDoc: Fails if the document doesn't exist.
+      //    setDoc with merge: Creates the document if it doesn't exist, or updates it if it does.
+      await setDoc(userDocRef, { displayName: displayName }, { merge: true });
+      // or await updateDoc(userDocRef, { displayName: displayName });
+
+      // 2. Update Firebase Auth profile (optional but recommended for consistency)
+      await updateProfile(user, { displayName: displayName });
+
+      // 3. Update local state (optional, as onAuthStateChanged might re-trigger)
+      setUser({ ...user, displayName: displayName } as User); // Update user state locally
+      if (userData) {
+        setUserData({ ...userData, displayName: displayName }); // Update userData state locally
+      }
+
+      console.log("Display name updated successfully!");
+      setEditingName(false); // Exit editing mode (if using)
+    } catch (error) {
+      console.error("Error updating display name:", error);
+      // Add user feedback for error
+    } finally {
+      setIsSaving(false); // Re-enable button
+    }
+  };
+
 
   if (loading) {
     return <p>Loading profile...</p>;
@@ -71,7 +129,25 @@ export default function Profile() {
           )}
           <div className="mb-4">
             <strong className="block text-gray-700 text-sm font-bold mb-2">Display Name:</strong>
-            <p className="text-gray-700 text-base">{user.displayName || "Not set"}</p>
+            {/* Editable Display Name Field */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                disabled={isSaving} // Disable input while saving
+              />
+              <button
+                onClick={handleSaveDisplayName}
+                disabled={isSaving || !displayName || displayName === user.displayName} // Disable if saving, empty, or unchanged
+                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                  (isSaving || !displayName || displayName === user.displayName) ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
           </div>
           <div className="mb-4">
             <strong className="block text-gray-700 text-sm font-bold mb-2">Email:</strong>
