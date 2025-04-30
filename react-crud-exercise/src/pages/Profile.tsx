@@ -1,14 +1,14 @@
-import { Link } from "react-router-dom"; // Correct import for react-router v6+
-import { getAuth, onAuthStateChanged, User, updateProfile } from "firebase/auth"; // Import updateProfile
+import { Link } from "react-router-dom";
+import { getAuth, signOut, onAuthStateChanged, User, updateProfile } from "firebase/auth";
 import { useState, useEffect } from "react";
-import { app } from "../firebase"; // Assuming firebase is initialized in ../firebase
-import { getFirestore, doc, getDoc, Timestamp, updateDoc, setDoc } from "firebase/firestore"; // Import Firestore functions including updateDoc and setDoc
+import { app } from "../firebase";
+import { getFirestore, doc, getDoc, Timestamp, setDoc } from "firebase/firestore";
 
 // Define an interface for the additional user data from Firestore
 interface UserData {
   timestamp?: Timestamp;
   providerId?: string;
-  displayName?: string; // Add displayName here if you store it in Firestore
+  displayName?: string;
   // Add other fields from your 'users' collection if needed
 }
 
@@ -16,7 +16,6 @@ export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null); // State for Firestore data
   const [loading, setLoading] = useState(true);
-  const [editingName, setEditingName] = useState(false); // State to track editing mode (optional)
   const [displayName, setDisplayName] = useState(""); // State for editable display name
   const [isSaving, setIsSaving] = useState(false); // State to track saving process
   const auth = getAuth(app);
@@ -34,25 +33,9 @@ export default function Profile() {
           if (docSnap.exists()) {
             const fetchedData = docSnap.data() as UserData;
             setUserData(fetchedData);
-            // Optionally sync Firestore displayName if it exists and differs
-            // if (fetchedData.displayName && fetchedData.displayName !== currentUser.displayName) {
-            //   setDisplayName(fetchedData.displayName);
-            // }
           } else {
-            console.log("No such document in Firestore! Creating one.");
-            // Optionally create the document if it doesn't exist
-            // await setDoc(userDocRef, {
-            //   email: currentUser.email,
-            //   displayName: currentUser.displayName,
-            //   timestamp: serverTimestamp(), // Use serverTimestamp for creation time
-            //   providerId: currentUser.providerData[0]?.providerId || 'password',
-            // });
-            // const newDocSnap = await getDoc(userDocRef); // Re-fetch after creation
-            // if (newDocSnap.exists()) {
-            //     setUserData(newDocSnap.data() as UserData);
-            // } else {
-                 setUserData(null); // Reset if document doesn't exist or creation failed
-            // }
+            console.log("No such document in Firestore!");
+            setUserData(null); // Reset if document doesn't exist
           }
         } catch (error) {
           console.error("Error fetching/creating user data from Firestore:", error);
@@ -67,7 +50,19 @@ export default function Profile() {
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [auth, db]); // Add db to dependency array
+  }, [auth, db]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Optional: Redirect user after logout, e.g., to the home page
+      // navigate('/');
+      console.log('User logged out successfully');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Handle logout errors here
+    }
+  };
 
   // Handle Display Name Update
   const handleSaveDisplayName = async () => {
@@ -77,15 +72,13 @@ export default function Profile() {
     const userDocRef = doc(db, "users", user.uid);
 
     try {
-      // 1. Update Firestore document
-      //    Choose ONE of the following: updateDoc or setDoc with merge
       //    updateDoc: Fails if the document doesn't exist.
       //    setDoc with merge: Creates the document if it doesn't exist, or updates it if it does.
       await setDoc(userDocRef, { displayName: displayName }, { merge: true });
       // or await updateDoc(userDocRef, { displayName: displayName });
 
       // 2. Update Firebase Auth profile (optional but recommended for consistency)
-      await updateProfile(user, { displayName: displayName });
+      // await updateProfile(user, { displayName: displayName });
 
       // 3. Update local state (optional, as onAuthStateChanged might re-trigger)
       setUser({ ...user, displayName: displayName } as User); // Update user state locally
@@ -94,7 +87,7 @@ export default function Profile() {
       }
 
       console.log("Display name updated successfully!");
-      setEditingName(false); // Exit editing mode (if using)
+      // setEditingName(false); // Exit editing mode (if using)
     } catch (error) {
       console.error("Error updating display name:", error);
       // Add user feedback for error
@@ -115,7 +108,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-100 p-6 min-h-screen">
+    <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
       <h1 className="text-4xl font-bold text-gray-800 mb-6">Profile Page</h1>
       {user ? (
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md">
@@ -187,13 +180,22 @@ export default function Profile() {
            </div> */}
         </div>
       ) : (
-        <p className="text-red-500">No user is currently logged in.</p>
+          <div>
+            <p className="text-red-500">No user is currently logged in.</p>
+            <p>
+              You can <Link to="/signin" className="text-blue-500 hover:underline">Sign In</Link> or <Link to="/signup" className="text-blue-500 hover:underline">Sign Up</Link>.
+            </p>
+          </div>
       )}
       <div className="mt-4 space-x-4">
-         <Link to="/about" className="text-blue-500 hover:text-blue-700">About</Link>
-         <Link to="/app" className="text-blue-500 hover:text-blue-700">App</Link>
-         {/* Add a link to sign in/sign out page if applicable */}
-         {/* <Link to="/auth" className="text-blue-500 hover:text-blue-700">Sign In/Out</Link> */}
+        {user && ( // Show Log Out button only if user is logged in
+          <button
+            onClick={handleLogout}
+            className="text-red-500 hover:text-red-700 focus:outline-none"
+          >
+            Log Out
+          </button>
+        )}
       </div>
     </div>
   );
