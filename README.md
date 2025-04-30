@@ -128,6 +128,8 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Add headless UI, e.g. TansStack Table
 - [ ] Add documentation / set up instructions / tutorial
 - [ ] Refactor / restructure code
+- [ ] Implement a proper, consistent UI design
+- [ ] Add Figma design?
 
 Actual refactoring suggestions:
 
