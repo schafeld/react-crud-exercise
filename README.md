@@ -116,11 +116,11 @@ Firebase documentation:
 ## Origin and Inspiration
 
 This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
-](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code deviates considerably as this project is upgraded to use React 19, Vite, PrimeReact (with PrimeIcons), and TypeScript.
+](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code implementation and the libraries used deviate considerably as this project is upgraded to use React 19, Vite, PrimeReact (with PrimeIcons), and TypeScript. You will _not_ be able to follow along with the course.
 
 ## License
 
-This project's code is licensed under : Currently not licensed.
+This project's code is licensed under : Currently not licensed. Intended to become MIT or GPL license when ready.
 
 Images by Unsplash are licensed under the [Unsplash License](https://unsplash.com/license):
 
