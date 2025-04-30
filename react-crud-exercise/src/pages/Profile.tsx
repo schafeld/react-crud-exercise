@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { getAuth, signOut, onAuthStateChanged, User, updateProfile } from "firebase/auth";
+import { getAuth, signOut, onAuthStateChanged, User } from "firebase/auth"; // Removed updateProfile
 import { useState, useEffect } from "react";
 import { app } from "../firebase";
-import { getFirestore, doc, getDoc, Timestamp, setDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, Timestamp, setDoc } from "firebase/firestore"; // Removed updateDoc as setDoc with merge is used
 
 // Define an interface for the additional user data from Firestore
 interface UserData {
@@ -13,10 +13,11 @@ interface UserData {
 }
 
 export default function Profile() {
-  const [user, setUser] = useState<User | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null); // State for Firestore data
+  const [user, setUser] = useState<User | null>(null); // Still keep Auth user for UID, email etc.
+  const [userData, setUserData] = useState<UserData | null>(null); // State for Firestore data (including displayName)
   const [loading, setLoading] = useState(true);
-  const [displayName, setDisplayName] = useState(""); // State for editable display name
+  // State for the editable display name in the input field
+  const [editableDisplayName, setEditableDisplayName] = useState("");
   const [isSaving, setIsSaving] = useState(false); // State to track saving process
   const auth = getAuth(app);
   const db = getFirestore(app); // Get Firestore instance
@@ -24,72 +25,63 @@ export default function Profile() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => { // Make the callback async
       setUser(currentUser);
+      setUserData(null); // Reset Firestore data on auth change
+      setEditableDisplayName(""); // Reset editable name
       if (currentUser) {
-        setDisplayName(currentUser.displayName || ""); // Initialize editable display name
-        // Fetch additional user data from Firestore
+        // Fetch user data from Firestore
         const userDocRef = doc(db, "users", currentUser.uid);
         try {
           const docSnap = await getDoc(userDocRef);
           if (docSnap.exists()) {
             const fetchedData = docSnap.data() as UserData;
             setUserData(fetchedData);
+            // Initialize editable display name from Firestore data or fallback
+            setEditableDisplayName(fetchedData.displayName || currentUser.displayName || "");
           } else {
-            console.log("No such document in Firestore!");
-            setUserData(null); // Reset if document doesn't exist
+            console.log("No user document in Firestore! Consider creating one.");
+            // Initialize editable display name even if no Firestore doc (e.g., from Auth profile)
+            setEditableDisplayName(currentUser.displayName || "");
+            // Optionally create a default document here if needed
+            // await setDoc(userDocRef, { displayName: currentUser.displayName || "", timestamp: serverTimestamp(), providerId: currentUser.providerData[0]?.providerId || 'unknown' });
           }
         } catch (error) {
-          console.error("Error fetching/creating user data from Firestore:", error);
-          setUserData(null); // Reset on error
+          console.error("Error fetching user data from Firestore:", error);
         }
-      } else {
-        setUserData(null); // Clear Firestore data if no user is logged in
-        setDisplayName(""); // Clear display name if no user
       }
       setLoading(false);
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [auth, db]);
+  }, [auth, db]); // Add db to dependency array
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      // Optional: Redirect user after logout, e.g., to the home page
-      // navigate('/');
       console.log('User logged out successfully');
     } catch (error) {
       console.error('Logout failed:', error);
-      // Handle logout errors here
     }
   };
 
-  // Handle Display Name Update
+  // Handle Display Name Update in Firestore
   const handleSaveDisplayName = async () => {
-    if (!user || !displayName || isSaving) return; // Prevent saving if no user, empty name, or already saving
+    // Use editableDisplayName for the check and save
+    if (!user || !editableDisplayName || isSaving || editableDisplayName === userData?.displayName) return;
 
     setIsSaving(true);
     const userDocRef = doc(db, "users", user.uid);
 
     try {
-      //    updateDoc: Fails if the document doesn't exist.
-      //    setDoc with merge: Creates the document if it doesn't exist, or updates it if it does.
-      await setDoc(userDocRef, { displayName: displayName }, { merge: true });
-      // or await updateDoc(userDocRef, { displayName: displayName });
+      // Use setDoc with merge to update or create the displayName field in Firestore
+      await setDoc(userDocRef, { displayName: editableDisplayName }, { merge: true });
 
-      // 2. Update Firebase Auth profile (optional but recommended for consistency)
-      // await updateProfile(user, { displayName: displayName });
+      // Update local userData state to reflect the change immediately
+      setUserData(prevData => ({ ...prevData, displayName: editableDisplayName }));
 
-      // 3. Update local state (optional, as onAuthStateChanged might re-trigger)
-      setUser({ ...user, displayName: displayName } as User); // Update user state locally
-      if (userData) {
-        setUserData({ ...userData, displayName: displayName }); // Update userData state locally
-      }
-
-      console.log("Display name updated successfully!");
-      // setEditingName(false); // Exit editing mode (if using)
+      console.log("Display name updated successfully in Firestore!");
     } catch (error) {
-      console.error("Error updating display name:", error);
+      console.error("Error updating display name in Firestore:", error);
       // Add user feedback for error
     } finally {
       setIsSaving(false); // Re-enable button
@@ -120,28 +112,34 @@ export default function Profile() {
               className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-gray-300"
             />
           )}
+          {/* Display Name Section */}
           <div className="mb-4">
             <strong className="block text-gray-700 text-sm font-bold mb-2">Display Name:</strong>
+            {/* Display current name from Firestore */}
+            {/* <p className="text-gray-700 text-base mb-2">{userData?.displayName || "Not set"}</p> */}
             {/* Editable Display Name Field */}
             <div className="flex items-center space-x-2">
               <input
                 type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
+                value={editableDisplayName} // Controlled input using editableDisplayName state
+                onChange={(e) => setEditableDisplayName(e.target.value)} // Update editable state
+                placeholder="Enter new display name"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 disabled={isSaving} // Disable input while saving
               />
               <button
                 onClick={handleSaveDisplayName}
-                disabled={isSaving || !displayName || displayName === user.displayName} // Disable if saving, empty, or unchanged
+                // Disable if saving, empty, or unchanged from Firestore data
+                disabled={isSaving || !editableDisplayName || editableDisplayName === userData?.displayName}
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-                  (isSaving || !displayName || displayName === user.displayName) ? 'opacity-50 cursor-not-allowed' : ''
+                  (isSaving || !editableDisplayName || editableDisplayName === userData?.displayName) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
+          {/* Other User Info */}
           <div className="mb-4">
             <strong className="block text-gray-700 text-sm font-bold mb-2">Email:</strong>
             <p className="text-gray-700 text-base">{user.email}</p>
@@ -162,22 +160,14 @@ export default function Profile() {
                 <p className="text-gray-700 text-base">{userData.providerId || "Not available"}</p>
               </div>
               <div className="mb-4">
-                <strong className="block text-gray-700 text-sm font-bold mb-2">Member since (timestamp from Firestore):</strong>
+                <strong className="block text-gray-700 text-sm font-bold mb-2">Member since:</strong>
                 <p className="text-gray-700 text-base">{formatTimestamp(userData.timestamp)}</p>
               </div>
             </>
           ) : (
-            <p className="text-gray-500 text-sm">Loading additional user data...</p>
+            !loading && <p className="text-gray-500 text-sm">Loading additional user data...</p> // Show only if not initial loading
           )}
-          {/* Add more user details if needed, e.g., creation time, last sign-in */}
-          {/* <div className="mb-4">
-             <strong className="block text-gray-700 text-sm font-bold mb-2">Account Created:</strong>
-             <p className="text-gray-700 text-base">{user.metadata.creationTime}</p>
-           </div>
-           <div className="mb-4">
-             <strong className="block text-gray-700 text-sm font-bold mb-2">Last Signed In:</strong>
-             <p className="text-gray-700 text-base">{user.metadata.lastSignInTime}</p>
-           </div> */}
+          {/* ... (rest of the component remains similar) ... */}
         </div>
       ) : (
           <div>
