@@ -118,6 +118,17 @@ Firebase documentation:
 This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 ](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code implementation and the libraries used deviate considerably as this project is upgraded to use React 19, Vite, PrimeReact (with PrimeIcons), and TypeScript. You will _not_ be able to follow along with the course.
 
+## TODOs / Future Work
+
+- [ ] Add Storybook
+- [ ] Add content database/s (aim for basic CMS or blog or "shopping window")
+- [ ] Add unit tests (Jest?)
+- [ ] Add e2e tests (Playwright?)
+- [ ] Add i18n
+- [ ] Add headless UI, e.g. TansStack Table
+- [ ] Add documentation / set up instructions / tutorial
+- [ ] Refactor / restructure code
+
 ## License
 
 This project's code is licensed under : Currently not licensed. Intended to become MIT or GPL license when ready.
