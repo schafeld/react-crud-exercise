@@ -106,7 +106,7 @@ export default function Navigation() {
       {user && ( // Show Log Out button only if user is logged in
         <button
           onClick={handleLogout}
-          className="text-red-500 hover:text-red-700 focus:outline-none"
+          className="text-red-500 hover:text-red-700 focus:outline-none whitespace-nowrap"
         >
           Log Out
         </button>
