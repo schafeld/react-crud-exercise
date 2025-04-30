@@ -130,6 +130,8 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Refactor / restructure code
 - [ ] Implement a proper, consistent UI design
 - [ ] Add Figma design?
+- Additional features:
+  -- [ ] Add a "protected content" wrapper component for page content exclusive to logged-in users
 
 Actual refactoring suggestions:
 
