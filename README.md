@@ -129,6 +129,10 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Add documentation / set up instructions / tutorial
 - [ ] Refactor / restructure code
 
+Actual refactoring suggestions:
+
+- [ ] Profile could be refactored to only rely on the ProtectedRoute component for authentication. The inline authentication check could be removed.
+
 ## License
 
 This project's code is licensed under : Currently not licensed. Intended to become MIT or GPL license when ready.

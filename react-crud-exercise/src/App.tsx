@@ -10,6 +10,7 @@ import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import AppLayout from './pages/AppLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App(): JSX.Element {
   return (
@@ -27,7 +28,14 @@ function App(): JSX.Element {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/offers" element={<Offers />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/profile"
+          element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </Router>
