@@ -55,6 +55,14 @@ export default function Navigation() {
       >
         App
       </NavLink>
+      <NavLink
+        to="/offers"
+        className={({ isActive }) =>
+          isActive ? "text-blue-500 underline" : "text-blue-500"
+        }
+      >
+        Offers
+      </NavLink>
       {!user && ( // Only show Sign In if user is not logged in
         <NavLink
           to="/signin"
@@ -85,14 +93,6 @@ export default function Navigation() {
           Forgot Password
         </NavLink>
       )}
-      <NavLink
-        to="/offers"
-        className={({ isActive }) =>
-          isActive ? "text-blue-500 underline" : "text-blue-500"
-        }
-      >
-        Offers
-      </NavLink>
       {user && ( // Only show Profile if user is logged in
         <NavLink
           to="/profile"
