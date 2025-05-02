@@ -130,12 +130,17 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Refactor / restructure code
 - [ ] Implement a proper, consistent UI design
 - [ ] Add Figma design?
+- [ ] Maybe change displayName behavior in Firebase auth to match Firestore displayName, see [Developer notes](#developer-notes) below.
 - Additional features:
   -- [ ] Add a "protected content" wrapper component for page content exclusive to logged-in users
 
 Actual refactoring suggestions:
 
 - [ ] Profile could be refactored to only rely on the ProtectedRoute component for authentication. The inline authentication check could be removed.
+
+_Developer notes_
+
+The displayName is read from the Firestore users collection. When it was changed it will _not_ be the same as the Firebase auth displayName. The Firebase auth displayName is not updated when the Firestore user is updated. I don't want to change this behavior, while testing the app. I want to keep the Firebase auth displayName as it is. Maybe I will change this behavior when the app is ready for production.
 
 ## License
 
