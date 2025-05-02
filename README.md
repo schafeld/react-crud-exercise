@@ -131,12 +131,14 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Implement a proper, consistent UI design
 - [ ] Add Figma design?
 - [ ] Maybe change displayName behavior in Firebase auth to match Firestore displayName, see [Developer notes](#developer-notes) below.
-- Additional features:
-  -- [ ] Add a "protected content" wrapper component for page content exclusive to logged-in users
+
+Additional features:
+
+- [ ] Add a "protected content" wrapper component for page content exclusive to logged-in users
 
 Actual refactoring suggestions:
 
-- [ ] Profile could be refactored to only rely on the ProtectedRoute component for authentication. The inline authentication check could be removed.
+- [/] Profile could be refactored to only rely on the ProtectedRoute component for authentication. The inline authentication check could be removed.
 
 _Developer notes_
 
