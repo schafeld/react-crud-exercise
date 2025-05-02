@@ -138,7 +138,7 @@ Additional features:
 
 Actual refactoring suggestions:
 
-- [/] Profile could be refactored to only rely on the ProtectedRoute component for authentication. The inline authentication check could be removed.
+- [x] Profile could be refactored to only rely on the ProtectedRoute component for authentication. The inline authentication check could be removed.
 
 _Developer notes_
 
