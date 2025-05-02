@@ -2,7 +2,16 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 export default function CreateListing() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    isNew: boolean;
+    title: string;
+    itemCount: number;
+    maxPerCustomer: number;
+    shortDescription: string;
+    detailedDescription: string;
+    price: number;
+    images: File[];
+  }>({
     isNew: true,
     title: "",
     itemCount: 1,
@@ -13,7 +22,8 @@ export default function CreateListing() {
     images: []
   });
 
-  const handleInputChange = (e) => {
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setFormData({
       ...formData,
@@ -21,14 +31,15 @@ export default function CreateListing() {
     });
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
-      images: Array.from(e.target.files)
+      images: Array.from(e.target.files || [])
     });
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     console.log("Form submitted:", formData);
     // Add API call to save the listing
@@ -126,7 +137,7 @@ export default function CreateListing() {
           />
         </div>
 
-        {/* Line 5: "Detailled product description" */}
+        {/* Line 5: "Detailed product description" */}
         <div className="mb-6">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="detailedDescription">
             Detailled product description
