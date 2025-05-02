@@ -1,32 +1,26 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { useState, useEffect } from 'react';
-import { app } from '../firebase'; // Assuming firebase is initialized in ../firebase
+import { getAuth, signOut } from 'firebase/auth';
+import { app } from '../firebase';
+import { useAuthStatus } from '../hooks/useAuthStatus';
 
 export default function Navigation() {
-  const [user, setUser] = useState<User | null>(null);
+  const { loggedIn, checkingStatus } = useAuthStatus();
   const auth = getAuth(app);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [auth]);
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      // Optional: Redirect user after logout, e.g., to the home page
       navigate('/');
       console.log('User logged out successfully');
     } catch (error) {
       console.error('Logout failed:', error);
-      // Handle logout errors here
     }
   };
+
+  if (checkingStatus) {
+    return null;
+  }
 
   return (
     <nav className="mt-4 flex items-center space-x-4">
@@ -63,7 +57,7 @@ export default function Navigation() {
       >
         Offers
       </NavLink>
-      {!user && ( // Only show Sign In if user is not logged in
+      {!loggedIn && (
         <NavLink
           to="/signin"
           className={({ isActive }) =>
@@ -73,7 +67,7 @@ export default function Navigation() {
           Sign In
         </NavLink>
       )}
-      {!user && ( // Only show Sign Up if user is not logged in
+      {!loggedIn && (
         <NavLink
           to="/signup"
           className={({ isActive }) =>
@@ -83,7 +77,7 @@ export default function Navigation() {
           Sign Up
         </NavLink>
       )}
-      {!user && ( // Only show Forgot Password if user is not logged in
+      {!loggedIn && (
         <NavLink
           to="/forgot-password"
           className={({ isActive }) =>
@@ -93,7 +87,7 @@ export default function Navigation() {
           Forgot Password
         </NavLink>
       )}
-      {user && ( // Only show Profile if user is logged in
+      {loggedIn && (
         <NavLink
           to="/profile"
           className={({ isActive }) =>
@@ -103,7 +97,7 @@ export default function Navigation() {
           Profile
         </NavLink>
       )}
-      {user && ( // Show Log Out button only if user is logged in
+      {loggedIn && (
         <button
           onClick={handleLogout}
           className="text-red-500 hover:text-red-700 focus:outline-none whitespace-nowrap"
@@ -112,5 +106,5 @@ export default function Navigation() {
         </button>
       )}
     </nav>
-  )
+  );
 }
