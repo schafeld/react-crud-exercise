@@ -11,6 +11,7 @@ import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import AppLayout from './pages/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import CreateListing from './pages/CreateListing';
 
 function App(): JSX.Element {
   return (
@@ -28,6 +29,14 @@ function App(): JSX.Element {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/offers" element={<Offers />} />
+        <Route
+          path="/create-listing"
+          element={
+            <ProtectedRoute>
+              <CreateListing />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={
