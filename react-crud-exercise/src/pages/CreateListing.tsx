@@ -1,7 +1,13 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
+import { getAuth } from "firebase/auth";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { db } from "../firebase";
+import { Toast } from 'primereact/toast';
 
 export default function CreateListing() {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<{
     isNew: boolean;
     title: string;
@@ -22,6 +28,9 @@ export default function CreateListing() {
     images: []
   });
 
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const toast = useRef<Toast>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -38,15 +47,106 @@ export default function CreateListing() {
     });
   };
 
+  // Upload images to Firebase Storage
+  const storeImages = async (images: File[]) => {
+    return Promise.all(
+      images.map((image) => {
+        return new Promise<string>((resolve, reject) => {
+          const storage = getStorage();
+          const filename = `${auth.currentUser?.uid}-${image.name}-${Date.now()}`;
+          const storageRef = ref(storage, `products/${filename}`);
+          const uploadTask = uploadBytesResumable(storageRef, image);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              // Progress monitoring (optional)
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`Upload is ${progress}% done`);
+            },
+            (error) => {
+              reject(error);
+            },
+            () => {
+              // Get download URL on completion
+              getDownloadURL(uploadTask.snapshot.ref)
+                .then((downloadURL) => resolve(downloadURL))
+                .catch((error) => reject(error));
+            }
+          );
+        });
+      })
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Add API call to save the listing
+    
+    try {
+      setLoading(true);
+      
+      if (!auth.currentUser) {
+        toast.current?.show({ 
+          severity: 'error',
+          summary: 'Error',
+          detail: "You must be logged in to create a listing"
+        });
+        return;
+      }
+      
+      if (formData.images.length === 0) {
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: "Please add at least one image"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // 1. Upload images to Firebase Storage
+      const imgUrls = await storeImages(formData.images);
+      
+      // 2. Create listing object with image URLs
+      const listingData = {
+        isNew: formData.isNew,
+        title: formData.title,
+        itemCount: formData.itemCount,
+        maxPerCustomer: formData.maxPerCustomer,
+        shortDescription: formData.shortDescription,
+        detailedDescription: formData.detailedDescription,
+        price: formData.price,
+        imgUrls: imgUrls, // Store array of image URLs
+        userRef: auth.currentUser.uid,
+        createdAt: serverTimestamp(),
+      };
+      
+      // 3. Save to Firestore
+      const docRef = await addDoc(collection(db, "listings"), listingData);
+      
+      setLoading(false);
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Success',
+        detail: "Listing created successfully"
+      });
+      navigate(`/listing/${docRef.id}`);
+      
+    } catch (error) {
+      setLoading(false);
+      console.error("Error creating listing:", error);
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: "Could not create listing"
+      });
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
+      <Toast ref={toast} />
+      
       <h1 className="text-4xl font-bold text-gray-800 mt-6">Create a product listing</h1>
       <p className="text-gray-600 mt-4 mb-8">
         This is where you can create a new product listing.
@@ -197,11 +297,11 @@ export default function CreateListing() {
             />
             {formData.images.length > 0 && (
               <ul className="list-disc list-inside text-gray-700">
-          {formData.images.map((file, index) => (
-            <li key={index} className="text-sm">
-              {file.name}
-            </li>
-          ))}
+                {formData.images.map((file, index) => (
+                  <li key={index} className="text-sm">
+                    {file.name}
+                  </li>
+                ))}
               </ul>
             )}
           </div>
@@ -210,14 +310,17 @@ export default function CreateListing() {
         <div className="flex justify-end mt-8">
           <button
             type="submit"
-            className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={loading}
+            className={`${
+              loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+            } text-white py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
           >
-            Create Listing
+            {loading ? "Creating..." : "Create Listing"}
           </button>
         </div>
       </form>
 
       <Link to="/" className="mt-6 text-blue-600 hover:underline">Go to Home</Link>
     </div>
-  )
+  );
 }
