@@ -19,7 +19,7 @@ interface ListingData {
   userRef: string;
   createdAt: {
     seconds: number;
-    nanoseconds: number;
+    nanoseconds: number; // Firestore timestamp format
   };
 }
 
