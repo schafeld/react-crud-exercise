@@ -13,6 +13,7 @@ import AppLayout from './pages/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import CreateListing from './pages/CreateListing';
 import DisplayListing from './pages/DisplayListing';
+import EditListing from './pages/EditListing';
 
 function App(): JSX.Element {
   return (
@@ -37,6 +38,14 @@ function App(): JSX.Element {
               <CreateListing />
             </ProtectedRoute>
           }
+        />
+        <Route
+          path="/edit-listing/:listingId"
+          element={
+            <ProtectedRoute>
+              <EditListing />
+            </ProtectedRoute>
+            }
         />
         <Route
           path="/listing/:listingId"
