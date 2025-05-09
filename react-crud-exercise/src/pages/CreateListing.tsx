@@ -5,6 +5,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db } from "../firebase";
 import { Toast } from 'primereact/toast';
+import ImageSelector from "../components/ImageSelector";
 
 export default function CreateListing() {
   const [loading, setLoading] = useState(false);
@@ -40,10 +41,10 @@ export default function CreateListing() {
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (files: FileList | null) => {
     setFormData({
       ...formData,
-      images: Array.from(e.target.files || [])
+      images: files ? Array.from(files) : []
     });
   };
 
@@ -279,32 +280,12 @@ export default function CreateListing() {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="images">
             Images. First image will be cover image.
           </label>
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="images"
-              className="inline-block bg-blue-600 text-white py-2 px-4 rounded-md cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
-            >
-              Select files
-            </label>
-            <input
-              type="file"
-              id="images"
-              name="images"
-              onChange={handleFileChange}
-              accept="image/*"
-              multiple
-              className="hidden"
-            />
-            {formData.images.length > 0 && (
-              <ul className="list-disc list-inside text-gray-700">
-                {formData.images.map((file, index) => (
-                  <li key={index} className="text-sm">
-                    {file.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <ImageSelector
+            onFilesChange={handleFileChange}
+            selectedFiles={formData.images}
+            label="Select files"
+            multiple={true}
+          />
         </div>
 
         <div className="flex justify-end mt-8">
