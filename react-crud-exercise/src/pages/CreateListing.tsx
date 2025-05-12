@@ -6,6 +6,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { db } from "../firebase";
 import { Toast } from 'primereact/toast';
 import ImageSelector from "../components/ImageSelector";
+import LocationSelector from "../components/LocationSelector";
 
 export default function CreateListing() {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,9 @@ export default function CreateListing() {
     detailedDescription: string;
     price: number;
     images: File[];
+    latitude: number | "";
+    longitude: number | "";
+    address: string;
   }>({
     isNew: true,
     title: "",
@@ -26,7 +30,10 @@ export default function CreateListing() {
     shortDescription: "",
     detailedDescription: "",
     price: 0,
-    images: []
+    images: [],
+    latitude: "",
+    longitude: "",
+    address: "",
   });
 
   const navigate = useNavigate();
@@ -46,6 +53,10 @@ export default function CreateListing() {
       ...formData,
       images: files ? Array.from(files) : []
     });
+  };
+
+  const handleLocationChange = (location: { latitude: number | ""; longitude: number | ""; address: string }) => {
+    setFormData({ ...formData, ...location });
   };
 
   // Upload images to Firebase Storage
@@ -105,10 +116,24 @@ export default function CreateListing() {
         return;
       }
 
+      if (
+        formData.latitude === "" ||
+        formData.longitude === "" ||
+        !formData.address.trim()
+      ) {
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: "Please provide a valid location"
+        });
+        setLoading(false);
+        return;
+      }
+
       // 1. Upload images to Firebase Storage
       const imgUrls = await storeImages(formData.images);
       
-      // 2. Create listing object with image URLs
+      // 2. Create listing object with image URLs and location
       const listingData = {
         isNew: formData.isNew,
         title: formData.title,
@@ -120,6 +145,11 @@ export default function CreateListing() {
         imgUrls: imgUrls, // Store array of image URLs
         userRef: auth.currentUser.uid,
         createdAt: serverTimestamp(),
+        location: {
+          latitude: formData.latitude,
+          longitude: formData.longitude,
+          address: formData.address,
+        },
       };
       
       // 3. Save to Firestore
@@ -273,6 +303,16 @@ export default function CreateListing() {
               required
             />
           </div>
+        </div>
+
+        {/* Location Selector */}
+        <div className="mb-6">
+          <LocationSelector
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            address={formData.address}
+            onChange={handleLocationChange}
+          />
         </div>
 
         {/* Line 7: Image upload field */}

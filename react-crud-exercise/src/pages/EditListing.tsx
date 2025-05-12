@@ -6,6 +6,7 @@ import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import { Toast } from 'primereact/toast';
 import ImageSelector from "../components/ImageSelector";
+import LocationSelector from "../components/LocationSelector";
 
 // Interface for the listing data
 interface ListingData {
@@ -22,10 +23,20 @@ interface ListingData {
     seconds: number;
     nanoseconds: number;
   };
+  location?: {
+    latitude: number | "";
+    longitude: number | "";
+    address: string;
+  };
 }
 
 export default function EditListing() {
-  const [formData, setFormData] = useState<Omit<ListingData, 'userRef' | 'createdAt'>>({
+  const [formData, setFormData] = useState<Omit<ListingData, 'userRef' | 'createdAt' | 'imgUrls'> & {
+    imgUrls: string[];
+    latitude: number | "";
+    longitude: number | "";
+    address: string;
+  }>({
     isNew: false,
     title: "",
     itemCount: 1,
@@ -33,7 +44,10 @@ export default function EditListing() {
     shortDescription: "",
     detailedDescription: "",
     price: 0,
-    imgUrls: []
+    imgUrls: [],
+    latitude: "",
+    longitude: "",
+    address: "",
   });
   
   const [loading, setLoading] = useState(true);
@@ -81,7 +95,10 @@ export default function EditListing() {
             shortDescription: data.shortDescription,
             detailedDescription: data.detailedDescription,
             price: data.price,
-            imgUrls: []
+            imgUrls: [],
+            latitude: data.location?.latitude ?? "",
+            longitude: data.location?.longitude ?? "",
+            address: data.location?.address ?? "",
           });
           setExistingImages(data.imgUrls || []);
           setLoading(false);
@@ -161,6 +178,15 @@ export default function EditListing() {
     await deleteImage(imageToRemove);
   };
 
+  const handleLocationChange = (location: { latitude: number | ""; longitude: number | ""; address: string }) => {
+    setFormData((prev) => ({
+      ...prev,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      address: location.address,
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -199,8 +225,19 @@ export default function EditListing() {
       }
       
       await updateDoc(docRef, {
-        ...formData,
+        isNew: formData.isNew,
+        title: formData.title,
+        itemCount: formData.itemCount,
+        maxPerCustomer: formData.maxPerCustomer,
+        shortDescription: formData.shortDescription,
+        detailedDescription: formData.detailedDescription,
+        price: formData.price,
         imgUrls: imageUrls,
+        location: {
+          latitude: formData.latitude,
+          longitude: formData.longitude,
+          address: formData.address,
+        },
         updatedAt: serverTimestamp(),
       });
       
@@ -375,6 +412,17 @@ export default function EditListing() {
             </div>
           </div>
           
+          {/* Location Selector */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Location</h2>
+            <LocationSelector
+              latitude={formData.latitude}
+              longitude={formData.longitude}
+              address={formData.address}
+              onChange={handleLocationChange}
+            />
+          </div>
+
           {/* Images */}
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Images</h2>

@@ -21,6 +21,11 @@ interface ListingData {
     seconds: number;
     nanoseconds: number; // Firestore timestamp format
   };
+  location?: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  };
 }
 
 export default function DisplayListing() {
@@ -164,6 +169,28 @@ export default function DisplayListing() {
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">Description</h3>
                 <p className="text-gray-600 whitespace-pre-line">{listing.detailedDescription}</p>
               </div>
+
+              {/* Location info */}
+              {listing.location && listing.location.latitude && listing.location.longitude && (
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">Location</h3>
+                  <div className="text-gray-600 text-sm mb-1">
+                    <span className="font-semibold">Address:</span> {listing.location.address}
+                  </div>
+                  <div className="text-gray-600 text-sm mb-1">
+                    <span className="font-semibold">Coordinates:</span> {listing.location.latitude}, {listing.location.longitude}
+                  </div>
+                  <iframe
+                    title="Google Maps Location"
+                    width="100%"
+                    height="200"
+                    frameBorder="0"
+                    src={`https://maps.google.com/maps?q=${listing.location.latitude},${listing.location.longitude}&z=15&output=embed`}
+                    allowFullScreen
+                    className="rounded-md border mt-2"
+                  ></iframe>
+                </div>
+              )}
             </div>
           </div>
           
