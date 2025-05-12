@@ -23,7 +23,7 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="mt-4 flex items-center space-x-4">
+    <nav className="mt-4 flex flex-wrap items-center gap-4">
       <NavLink
         to="/"
         className={({ isActive }) =>
