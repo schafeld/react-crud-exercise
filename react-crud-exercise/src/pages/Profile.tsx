@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
 import { getAuth, signOut } from "firebase/auth"; // Removed onAuthStateChanged, User
 import { useState, useEffect } from "react";
 import { app } from "../firebase";
-import { getFirestore, doc, getDoc, Timestamp, setDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, Timestamp, setDoc, collection, query, where, getDocs, DocumentData } from "firebase/firestore"; // Added new imports
 import { useAuthStatus } from "../hooks/useAuthStatus"; // Import the hook
 
 // Define an interface for the additional user data from Firestore
@@ -17,6 +17,8 @@ export default function Profile() {
   const [userData, setUserData] = useState<UserData | null>(null); // State for Firestore data
   const [editableDisplayName, setEditableDisplayName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [userListings, setUserListings] = useState<DocumentData[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
   const { loggedIn, checkingStatus, currentUser } = useAuthStatus(); // Use the hook
   const auth = getAuth(app); // Keep auth for signOut
   const db = getFirestore(app);
@@ -44,10 +46,29 @@ export default function Profile() {
           setUserData(null); // Reset on error
           setEditableDisplayName(currentUser.displayName || ""); // Fallback editable name
         }
+
+        // Fetch user's listings
+        setLoadingListings(true);
+        const listingsRef = collection(db, "listings");
+        const q = query(listingsRef, where("userRef", "==", currentUser.uid));
+        try {
+          const querySnap = await getDocs(q);
+          const listingsArr: DocumentData[] = [];
+          querySnap.forEach((doc) => {
+            listingsArr.push({ id: doc.id, ...doc.data() });
+          });
+          setUserListings(listingsArr);
+        } catch (error) {
+          console.error("Error fetching user listings:", error);
+          setUserListings([]);
+        } finally {
+          setLoadingListings(false);
+        }
       } else {
         // Clear states if user logs out or is not logged in initially
         setUserData(null);
         setEditableDisplayName("");
+        setUserListings([]);
       }
     };
 
@@ -158,6 +179,7 @@ export default function Profile() {
           ) : (
              <p className="text-gray-500 text-sm">Loading additional user data...</p> // Show if userData is null after initial check
           )}
+
         </div>
       ) : (
           <div>
@@ -166,6 +188,30 @@ export default function Profile() {
               You can <Link to="/signin" className="text-blue-500 hover:underline">Sign In</Link> or <Link to="/signup" className="text-blue-500 hover:underline">Sign Up</Link>.
             </p>
           </div>
+      )}
+      {loggedIn && (
+        <div className="w-full max-w-md mt-8">
+          <h3 className="text-xl font-semibold mb-2">Your Listings</h3>
+          {loadingListings ? (
+            <p className="text-gray-500">Loading your listings...</p>
+          ) : userListings.length === 0 ? (
+            <p className="text-gray-500">You have not created any listings yet.</p>
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {userListings.map((listing) => (
+                <li key={listing.id} className="py-2">
+                  <Link
+                    to={`/listing/${listing.id}`}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {listing.title || "Untitled Listing"}
+                  </Link>
+                  {/* Add more listing fields as needed */}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
       <div className="mt-4 space-x-4">
         {loggedIn && ( // Show Log Out button only if logged in
