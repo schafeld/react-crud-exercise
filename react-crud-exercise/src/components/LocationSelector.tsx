@@ -42,6 +42,20 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     });
   };
 
+  const geocodeAddress = async (address: string) => {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const { lat, lon } = data[0];
+      onChange({
+        latitude: parseFloat(lat),
+        longitude: parseFloat(lon),
+        address,
+      });
+    }
+  };
+
   const mapSrc =
     latitude && longitude
       ? `https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`
@@ -88,16 +102,26 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         <label className="block text-xs text-gray-600 mb-1" htmlFor="address">
           Address/Description
         </label>
-        <textarea
-          id="address"
-          name="address"
-          value={address}
-          onChange={handleInputChange}
-          rows={2}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-          placeholder="Short address or description"
-          required
-        />
+        <div className="flex gap-2">
+          <textarea
+            id="address"
+            name="address"
+            value={address}
+            onChange={handleInputChange}
+            rows={2}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            placeholder="Short address or description"
+            required
+          />
+          <button
+            type="button"
+            className="px-3 py-2 bg-blue-500 text-white rounded-md"
+            onClick={() => geocodeAddress(address)}
+            title="Set coordinates from address"
+          >
+            Set coords
+          </button>
+        </div>
       </div>
       {geoLoading && (
         <div className="text-xs text-gray-500 mb-2">Detecting location...</div>
