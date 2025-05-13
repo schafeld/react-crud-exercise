@@ -29,7 +29,7 @@ export default function Home() {
         isNew={true} // true for new offers | false for recent offers | undefined or null for all recent offers
         showImage={true}
         showTitle={true}
-        showDescription={false}
+        showDescription={true}
         showPrice={true}
         showDate={true}
         limit={5}
@@ -41,7 +41,7 @@ export default function Home() {
         showTitle={true}
         showDescription={false}
         showPrice={true}
-        showDate={true}
+        showDate={false}
         limit={5}
       />
       {/* <Link to="/about">About</Link>

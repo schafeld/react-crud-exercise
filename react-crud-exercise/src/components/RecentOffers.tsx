@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { collection, getDocs, query, orderBy, limit as fbLimit, where, QueryConstraint } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit as fbLimit, where } from "firebase/firestore";
 import { db } from "../firebase";
 
 // Adjust fields as per your Firestore "listings" schema
 type Offer = {
   id: string;
   title: string;
-  description?: string;
+  shortDescription?: string;
   price: number;
   createdAt: {
     seconds: number;
@@ -15,7 +15,7 @@ type Offer = {
   };
   imgUrls?: string[];
   isNew?: boolean;
-  [key: string]: any;
+  [key: string]: string | number | boolean | string[] | { seconds: number; nanoseconds: number } | undefined;
 };
 
 type RecentOffersProps = {
@@ -75,6 +75,7 @@ const RecentOffers: React.FC<RecentOffersProps> = ({
         setOffers(data);
       } catch (error) {
         setOffers([]);
+        console.error("Error fetching offers: ", error);
       }
       setLoading(false);
     };
@@ -104,8 +105,8 @@ const RecentOffers: React.FC<RecentOffersProps> = ({
             {showTitle && (
               <h2 className="font-semibold text-lg text-left">{offer.title}</h2>
             )}
-            {showDescription && offer.description && (
-              <p className="text-gray-600 text-sm">{offer.description}</p>
+            {showDescription && offer.shortDescription && (
+              <p className="text-gray-600 text-sm text-left">{offer.shortDescription}</p>
             )}
             <div className="flex gap-4 mt-1 text-sm text-gray-500">
               {showPrice && <span>Price: ${offer.price}</span>}
