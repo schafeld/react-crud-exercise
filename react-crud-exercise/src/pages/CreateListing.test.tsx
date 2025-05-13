@@ -114,3 +114,43 @@ describe('CreateListing component', () => {
     expect(screen.getByText('test.png')).toBeInTheDocument()
   })
 })
+// Mock ImageSelector to simulate file selection and display file names
+vi.mock('../components/ImageSelector', () => ({
+  __esModule: true,
+  default: ({ onFilesChange, selectedFiles, label }: any) => (
+    <div>
+      <label>
+        {label}
+        <input
+          type="file"
+          multiple
+          aria-label={label}
+          onChange={e => onFilesChange(e.target.files)}
+          data-testid="mock-image-input"
+        />
+      </label>
+      <ul>
+        {selectedFiles && selectedFiles.map((file: File) => (
+          <li key={file.name}>{file.name}</li>
+        ))}
+      </ul>
+    </div>
+  ),
+}));
+
+// Mock LocationSelector to avoid rendering issues
+vi.mock('../components/LocationSelector', () => ({
+  __esModule: true,
+  default: ({ latitude, longitude, address, onChange }: any) => (
+    <div>
+      <label>
+        Location
+        <input
+          aria-label="Location address"
+          value={address}
+          onChange={e => onChange({ latitude: 1, longitude: 2, address: e.target.value })}
+        />
+      </label>
+    </div>
+  ),
+}));
