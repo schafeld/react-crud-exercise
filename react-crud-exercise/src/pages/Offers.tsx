@@ -17,6 +17,7 @@ interface Listing {
     seconds: number;
     nanoseconds: number; // Firestore timestamp format
   };
+  isNew: boolean; // Add this line
 }
 
 export default function Offers() {
@@ -233,7 +234,7 @@ export default function Offers() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {listings.length > 0 ? (
                 listings.map((listing) => (
-                  <div key={listing.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                  <div key={listing.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
                     <Link to={`/listing/${listing.id}`} className="block">
                       <div className="h-48 overflow-hidden">
                         {listing.imgUrls && listing.imgUrls.length > 0 ? (
@@ -248,6 +249,17 @@ export default function Offers() {
                           </div>
                         )}
                       </div>
+
+                      {/* Badge for New or Second Hand */}
+                      <span
+                        className={`absolute top-2 left-2 px-2 py-1 text-xs font-semibold rounded ${
+                          listing.isNew
+                            ? "bg-green-500 text-white"
+                            : "bg-yellow-400 text-gray-800"
+                        }`}
+                      >
+                        {listing.isNew ? "New" : "Second Hand"}
+                      </span>
                       
                       <div className="p-4">
                         <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">
