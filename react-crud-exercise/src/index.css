@@ -61,6 +61,17 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.custom-dialog-mask {
+  background: rgba(55, 65, 81, 0.7) !important;
+  /* Tailwind gray-700 with opacity */
+}
+
+.custom-dialog-content {
+  background: #fff !important;
+  padding: 2rem !important;
+  border-radius: 0.75rem !important;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

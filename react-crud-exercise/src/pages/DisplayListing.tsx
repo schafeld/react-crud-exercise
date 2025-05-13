@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, deleteDoc, doc as firestoreDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import { Toast } from 'primereact/toast';
+import { Dialog } from 'primereact/dialog';
 import { useRef } from "react";
 
 // Interface for the listing data
@@ -32,6 +33,8 @@ export default function DisplayListing() {
   const [listing, setListing] = useState<ListingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const params = useParams();
   const auth = getAuth();
   const toast = useRef<Toast>(null);
@@ -75,6 +78,33 @@ export default function DisplayListing() {
     fetchListing();
   }, [params.listingId]);
 
+  const handleDelete = async () => {
+    if (!params.listingId) return;
+    setDeleting(true);
+    try {
+      await deleteDoc(firestoreDoc(db, "listings", params.listingId));
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Deleted',
+        detail: 'Listing deleted successfully',
+      });
+      setShowDeleteDialog(false);
+      // Optionally redirect to home after deletion
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1200);
+    } catch (error) {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: `Failed to delete listing: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+      setShowDeleteDialog(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   // Format the date for display
   const formatDate = (timestamp: { seconds: number; nanoseconds: number }) => {
     if (!timestamp) return "Unknown date";
@@ -103,6 +133,36 @@ export default function DisplayListing() {
   return (
     <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
       <Toast ref={toast} />
+      <Dialog
+        header="Confirm Deletion"
+        visible={showDeleteDialog}
+        style={{ width: '350px' }}
+        onHide={() => setShowDeleteDialog(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <button
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </button>
+            <button
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        }
+        modal
+        draggable={false}
+        maskClassName="custom-dialog-mask"
+        className="custom-dialog-content"
+      >
+        <p>Do you really want to delete this listing?</p>
+      </Dialog>
       
       <div className="w-full max-w-6xl bg-white p-6 rounded-lg shadow-md">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">{listing.title}</h1>
@@ -212,11 +272,14 @@ export default function DisplayListing() {
               </div>
             </div>
             
-            <button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-            >
-              Add to Cart
-            </button>
+            {/* Show "Add to Cart" only if NOT logged in */}
+            {!auth.currentUser && (
+              <button
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              >
+                Add to Cart
+              </button>
+            )}
             
             {/* Show edit/delete buttons if the user is the owner */}
             {isOwner && (
@@ -229,6 +292,7 @@ export default function DisplayListing() {
                 </Link>
                 <button
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  onClick={() => setShowDeleteDialog(true)}
                 >
                   Delete
                 </button>
