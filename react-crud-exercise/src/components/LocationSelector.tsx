@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 interface LocationSelectorProps {
   latitude: number | "";
@@ -14,6 +14,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   onChange,
 }) => {
   const [geoLoading, setGeoLoading] = useState(false);
+  const [mapHeight, setMapHeight] = useState(200);
+  const [dragging, setDragging] = useState(false);
+  const startY = useRef(0);
+  const startHeight = useRef(200);
 
   useEffect(() => {
     if ((latitude === "" || longitude === "") && "geolocation" in navigator) {
@@ -60,6 +64,37 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     latitude && longitude
       ? `https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`
       : "";
+
+  // Drag handlers for resizing map
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    setDragging(true);
+    startY.current = e.clientY;
+    startHeight.current = mapHeight;
+    document.body.style.cursor = "ns-resize";
+  };
+
+  const handleDrag = (e: MouseEvent) => {
+    if (!dragging) return;
+    const delta = e.clientY - startY.current;
+    setMapHeight(Math.max(100, startHeight.current + delta));
+  };
+
+  const handleDragEnd = () => {
+    setDragging(false);
+    document.body.style.cursor = "";
+  };
+
+  useEffect(() => {
+    if (dragging) {
+      window.addEventListener("mousemove", handleDrag);
+      window.addEventListener("mouseup", handleDragEnd);
+      return () => {
+        window.removeEventListener("mousemove", handleDrag);
+        window.removeEventListener("mouseup", handleDragEnd);
+        document.body.style.cursor = "";
+      };
+    }
+  }, [dragging]);
 
   return (
     <div className="mb-6">
@@ -131,12 +166,37 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           <iframe
             title="Google Maps Location"
             width="100%"
-            height="200"
+            height={mapHeight}
             frameBorder="0"
             src={mapSrc}
             allowFullScreen
             className="rounded-md border"
+            style={{ resize: "none", pointerEvents: "auto" }}
           ></iframe>
+          <div
+            style={{
+              height: "8px",
+              cursor: "ns-resize",
+              background: "#e5e7eb",
+              borderRadius: "0 0 0.375rem 0.375rem",
+              marginTop: "-8px",
+              position: "relative",
+              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              userSelect: "none",
+            }}
+            onMouseDown={handleDragStart}
+            title="Drag to resize map"
+          >
+            <div style={{
+              width: 40,
+              height: 4,
+              background: "#9ca3af",
+              borderRadius: 2,
+            }} />
+          </div>
         </div>
       )}
     </div>
