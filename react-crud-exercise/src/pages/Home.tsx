@@ -34,7 +34,7 @@ export default function Home() {
         showDate={true}
         limit={5}
       />
-      <h3 className="text-2xl font-semibold text-gray-800 mt-6">New Offers - Used Items</h3>
+      <h3 className="text-2xl font-semibold text-gray-800 mt-6">Recent Offers - Used Items</h3>
       <RecentOffers
         isNew={false} // true for new offers | false for recent offers | undefined or null for all recent offers
         showImage={true}
