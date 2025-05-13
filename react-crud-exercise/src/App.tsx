@@ -18,7 +18,7 @@ import EditListing from './pages/EditListing';
 function App(): JSX.Element {
   return (
     <Router>
-      <div className="flex flex-col items-center justify-center bg-gray-100 p-6 sticky top-0">
+      <div className="flex flex-col items-center justify-center bg-gray-100 p-6 sticky top-0 z-100">
         <Header></Header>
         <Navigation />
       </div>
