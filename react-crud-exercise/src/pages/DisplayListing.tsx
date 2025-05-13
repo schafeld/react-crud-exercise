@@ -4,8 +4,8 @@ import { doc, getDoc, deleteDoc, doc as firestoreDoc } from "firebase/firestore"
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import { Toast } from 'primereact/toast';
-import { Dialog } from 'primereact/dialog';
 import { useRef } from "react";
+import DeletionDialog from "../components/DeletionDialog";
 
 // Interface for the listing data
 interface ListingData {
@@ -133,36 +133,12 @@ export default function DisplayListing() {
   return (
     <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
       <Toast ref={toast} />
-      <Dialog
-        header="Confirm Deletion"
+      <DeletionDialog
         visible={showDeleteDialog}
-        style={{ width: '350px' }}
-        onHide={() => setShowDeleteDialog(false)}
-        footer={
-          <div className="flex justify-end gap-2">
-            <button
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded"
-              onClick={() => setShowDeleteDialog(false)}
-              disabled={deleting}
-            >
-              Cancel
-            </button>
-            <button
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? "Deleting..." : "Delete"}
-            </button>
-          </div>
-        }
-        modal
-        draggable={false}
-        maskClassName="custom-dialog-mask"
-        className="custom-dialog-content"
-      >
-        <p>Do you really want to delete this listing?</p>
-      </Dialog>
+        onCancel={() => setShowDeleteDialog(false)}
+        onDelete={handleDelete}
+        deleting={deleting}
+      />
       
       <div className="w-full max-w-6xl bg-white p-6 rounded-lg shadow-md">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">{listing.title}</h1>
