@@ -1,9 +1,11 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuthStatus } from "../hooks/useAuthStatus";
-// import { useFirestoreUser } from "../hooks/useFirestoreUser"; TODO: Remove this if no user data is needed
 import { collection, getDocs, query, orderBy, limit, startAfter, QueryDocumentSnapshot, getCountFromServer } from "firebase/firestore";
 import { db } from "../firebase";
+// Add PrimeReact PrimeIcons import:
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
 
 // Configuration constant for number of items per page
 const ITEMS_PER_PAGE = 3;
@@ -17,11 +19,13 @@ interface Listing {
     seconds: number;
     nanoseconds: number; // Firestore timestamp format
   };
-  isNew: boolean; // Add this line
+  isNew: boolean;
+  userRef?: string; // <-- Add this if not present
 }
 
 export default function Offers() {
-  const { loggedIn, checkingStatus } = useAuthStatus();
+  //const { loggedIn, checkingStatus, user } = useAuthStatus(); // <-- Make sure user is available
+  const { loggedIn, checkingStatus, currentUser } = useAuthStatus(); // Use currentUser directly
   const [searchParams, setSearchParams] = useSearchParams();
   // const navigate = useNavigate();
   
@@ -107,10 +111,16 @@ export default function Offers() {
         // Process results
         const listingsData: Listing[] = [];
         querySnap.forEach((doc) => {
+          const data = doc.data();
           listingsData.push({
             id: doc.id,
-            ...doc.data(),
-          } as Listing);
+            title: data.title,
+            price: data.price,
+            imgUrls: data.imgUrls,
+            createdAt: data.createdAt,
+            isNew: data.isNew,
+            userRef: data.userRef, // <-- explicitly map userRef
+          });
         });
         
         // Cache the results
@@ -233,48 +243,61 @@ export default function Offers() {
           <div className="w-full max-w-4xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {listings.length > 0 ? (
-                listings.map((listing) => (
-                  <div key={listing.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
-                    <Link to={`/listing/${listing.id}`} className="block">
-                      <div className="h-48 overflow-hidden">
-                        {listing.imgUrls && listing.imgUrls.length > 0 ? (
-                          <img 
-                            src={listing.imgUrls[0]} 
-                            alt={listing.title}
-                            className="w-full h-full object-cover" 
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-gray-500">No image</span>
-                          </div>
-                        )}
-                      </div>
+                listings.map((listing) => {
+                  return (
+                    <div key={listing.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow relative">
+                      <Link to={`/listing/${listing.id}`} className="block">
+                        <div className="h-48 overflow-hidden">
+                          {listing.imgUrls && listing.imgUrls.length > 0 ? (
+                            <img 
+                              src={listing.imgUrls[0]} 
+                              alt={listing.title}
+                              className="w-full h-full object-cover" 
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                              <span className="text-gray-500">No image</span>
+                            </div>
+                          )}
+                        </div>
 
-                      {/* Badge for New or Second Hand */}
-                      <span
-                        className={`absolute top-2 left-2 px-2 py-1 text-xs font-semibold rounded ${
-                          listing.isNew
-                            ? "bg-green-500 text-white"
-                            : "bg-yellow-400 text-gray-800"
-                        }`}
-                      >
-                        {listing.isNew ? "New" : "Second Hand"}
-                      </span>
-                      
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">
-                          {listing.title}
-                        </h3>
-                        <p className="text-xl font-bold text-blue-600 mb-2">
-                          ${listing.price.toFixed(2)}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {formatDate(listing.createdAt)}
-                        </p>
-                      </div>
-                    </Link>
-                  </div>
-                ))
+                        {/* Badge for New or Second Hand */}
+                        <span
+                          className={`absolute top-2 left-2 px-2 py-1 text-xs font-semibold rounded ${
+                            listing.isNew
+                              ? "bg-green-500 text-white"
+                              : "bg-yellow-400 text-gray-800"
+                          }`}
+                        >
+                          {listing.isNew ? "New" : "Second Hand"}
+                        </span>
+                        
+                        <div className="p-4">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">
+                            {listing.title}
+                          </h3>
+                          <p className="text-xl font-bold text-blue-600 mb-2">
+                            ${listing.price.toFixed(2)}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {formatDate(listing.createdAt)}
+                          </p>
+                        </div>
+                      </Link>
+                      {/* Pencil icon button for owner's listings */}
+                      {currentUser && listing.userRef === currentUser.uid && (
+                        <Link
+                          to={`/edit-listing/${listing.id}`}
+                          className="absolute bottom-2 right-2 bg-white rounded-2 px-2 py-1 shadow hover:bg-gray-100 transition"
+                          title="Edit Listing"
+                          style={{ zIndex: 2 }}
+                        >
+                          <i className="pi pi-pencil text-gray-600" style={{ fontSize: "0.8rem" }} />
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })
               ) : (
                 <div className="col-span-3 text-center p-8">
                   <p className="text-gray-500">No listings found</p>
