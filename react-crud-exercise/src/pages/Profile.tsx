@@ -121,6 +121,11 @@ export default function Profile() {
       {loggedIn && currentUser ? ( // Check loggedIn and currentUser
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md">
           <h2 className="text-2xl font-semibold mb-4 text-center">User Information</h2>
+            <div className="border border-gray-300 rounded p-4 bg-gray-50 mb-6">
+            <p className="text-gray-600 text-center">
+              Notice: The profile image, email address and display name will be publicly displayed when you post offer listings.
+            </p>
+            </div>
           {currentUser.photoURL && (
             <img
               src={currentUser.photoURL}

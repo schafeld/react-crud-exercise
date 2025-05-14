@@ -35,6 +35,7 @@ export default function DisplayListing() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [sellerName, setSellerName] = useState<string | null>(null);
   const params = useParams();
   const auth = getAuth();
   const toast = useRef<Toast>(null);
@@ -55,6 +56,14 @@ export default function DisplayListing() {
 
         if (docSnap.exists()) {
           setListing(docSnap.data() as ListingData);
+          // Fetch seller name
+          const userRef = docSnap.data().userRef;
+          if (userRef) {
+            const sellerDoc = await getDoc(doc(db, "users", userRef));
+            if (sellerDoc.exists()) {
+              setSellerName(sellerDoc.data().displayName || null);
+            }
+          }
           setLoading(false);
         } else {
           toast.current?.show({
@@ -277,7 +286,17 @@ export default function DisplayListing() {
           </div>
         </div>
       </div>
-      
+
+      {/* Seller Profile Link */}
+      <div className="mt-8 w-full max-w-6xl flex justify-end">
+        <Link
+          to={`/seller/${listing.userRef}`}
+          className="text-blue-600 hover:underline text-lg"
+        >
+          View {sellerName ? `${sellerName}'s` : "Seller"} Vendor Profile
+        </Link>
+      </div>
+
       <Link to="/" className="mt-6 text-blue-600 hover:underline">Back to listings</Link>
     </div>
   );

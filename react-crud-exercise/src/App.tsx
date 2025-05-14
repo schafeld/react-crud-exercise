@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CreateListing from './pages/CreateListing';
 import DisplayListing from './pages/DisplayListing';
 import EditListing from './pages/EditListing';
+import SellerProfile from './pages/SellerProfile';
 
 function App(): JSX.Element {
   return (
@@ -59,6 +60,7 @@ function App(): JSX.Element {
         </ProtectedRoute>
           }
         />
+        <Route path="/seller/:sellerId" element={<SellerProfile />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </Router>
