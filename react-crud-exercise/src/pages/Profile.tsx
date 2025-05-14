@@ -195,7 +195,15 @@ export default function Profile() {
           {loadingListings ? (
             <p className="text-gray-500">Loading your listings...</p>
           ) : userListings.length === 0 ? (
-            <p className="text-gray-500">You have not created any listings yet.</p>
+            <p className="text-gray-500">
+              You have not created any listings yet.{" "}
+              <Link
+                to="/create-listing"
+                className="text-blue-600 hover:underline"
+              >
+                Create your first listing
+              </Link>
+            </p>
           ) : (
             <ul className="divide-y divide-gray-200">
               {userListings.map((listing) => (
