@@ -132,6 +132,7 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Add Figma design?
 - [ ] Maybe change displayName behavior in Firebase auth to match Firestore displayName, see [Hints and Ideas](#hints-and-ideas) below.
 - [ ] Vendor profiles should have a custom vendor image (email login user do not have a profile image, Google OAuth users do) and a vendor link (instead of their email address being exposed)
+- [ ] Add configuration and filter for currency display
 
 Additional features:
 
