@@ -15,7 +15,10 @@ import CreateListing from './pages/CreateListing';
 import DisplayListing from './pages/DisplayListing';
 import EditListing from './pages/EditListing';
 import SellerProfile from './pages/SellerProfile';
-
+// Import PrimeReact styles (usually done at the application level)
+import 'primereact/resources/themes/lara-light-indigo/theme.css';  // theme
+import 'primereact/resources/primereact.min.css';                  // core css
+import 'primeicons/primeicons.css';                                // icons
 function App(): JSX.Element {
   return (
     <Router>

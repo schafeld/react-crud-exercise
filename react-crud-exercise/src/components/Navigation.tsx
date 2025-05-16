@@ -1,7 +1,9 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
+import { MegaMenu } from 'primereact/megamenu';
 import { app } from '../firebase';
 import { useAuthStatus } from '../hooks/useAuthStatus';
+import './Navigation.css'; // Add this import for custom styles
 
 export default function Navigation() {
   const { loggedIn, checkingStatus } = useAuthStatus();
@@ -18,93 +20,83 @@ export default function Navigation() {
     }
   };
 
+  // Build the menu items for MegaMenu
+  const menuItems = [
+    {
+      label: 'Home',
+      icon: 'pi pi-fw pi-home',
+      command: () => navigate('/')
+    },
+    {
+      label: 'About',
+      icon: 'pi pi-fw pi-info-circle',
+      command: () => navigate('/about')
+    },
+    {
+      label: 'App',
+      icon: 'pi pi-fw pi-th-large',
+      command: () => navigate('/app')
+    },
+    {
+      label: 'Offers',
+      icon: 'pi pi-fw pi-tag',
+      command: () => navigate('/offers')
+    },
+    {
+      label: 'Account',
+      icon: 'pi pi-fw pi-user',
+      items: [
+        [
+          {
+            label: loggedIn ? 'User Options' : 'Authentication',
+            items: loggedIn
+              ? [
+                  { 
+                    label: 'Profile', 
+                    icon: 'pi pi-fw pi-user-edit',
+                    command: () => navigate('/profile') 
+                  },
+                  { 
+                    label: 'Log Out', 
+                    icon: 'pi pi-fw pi-power-off',
+                    command: () => handleLogout() 
+                  }
+                ]
+              : [
+                  { 
+                    label: 'Sign In', 
+                    icon: 'pi pi-fw pi-sign-in',
+                    command: () => navigate('/signin') 
+                  },
+                  { 
+                    label: 'Sign Up', 
+                    icon: 'pi pi-fw pi-user-plus',
+                    command: () => navigate('/signup') 
+                  },
+                  { 
+                    label: 'Forgot Password', 
+                    icon: 'pi pi-fw pi-lock',
+                    command: () => navigate('/forgot-password') 
+                  }
+                ]
+          }
+        ]
+      ]
+    }
+  ];
+
   if (checkingStatus) {
     return null;
   }
 
   return (
-    <nav className="mt-4 flex flex-wrap items-center gap-4">
-      <NavLink
-        to="/"
-        className={({ isActive }) =>
-          isActive ? "text-blue-500 underline" : "text-blue-500"
-        }
-        end
-      >
-        Home
-      </NavLink>
-      <NavLink
-        to="/about"
-        className={({ isActive }) =>
-          isActive ? "text-blue-500 underline" : "text-blue-500"
-        }
-      >
-        About
-      </NavLink>
-      <NavLink
-        to="/app"
-        className={({ isActive }) =>
-          isActive ? "text-blue-500 underline" : "text-blue-500"
-        }
-      >
-        App
-      </NavLink>
-      <NavLink
-        to="/offers"
-        className={({ isActive }) =>
-          isActive ? "text-blue-500 underline" : "text-blue-500"
-        }
-      >
-        Offers
-      </NavLink>
-      {!loggedIn && (
-        <NavLink
-          to="/signin"
-          className={({ isActive }) =>
-            isActive ? "text-blue-500 underline" : "text-blue-500"
-          }
-        >
-          Sign In
-        </NavLink>
-      )}
-      {!loggedIn && (
-        <NavLink
-          to="/signup"
-          className={({ isActive }) =>
-            isActive ? "text-blue-500 underline" : "text-blue-500"
-          }
-        >
-          Sign Up
-        </NavLink>
-      )}
-      {!loggedIn && (
-        <NavLink
-          to="/forgot-password"
-          className={({ isActive }) =>
-            isActive ? "text-blue-500 underline" : "text-blue-500"
-          }
-        >
-          Forgot Password
-        </NavLink>
-      )}
-      {loggedIn && (
-        <NavLink
-          to="/profile"
-          className={({ isActive }) =>
-            isActive ? "text-blue-500 underline" : "text-blue-500"
-          }
-        >
-          Profile
-        </NavLink>
-      )}
-      {loggedIn && (
-        <button
-          onClick={handleLogout}
-          className="text-red-500 hover:text-red-700 focus:outline-none whitespace-nowrap"
-        >
-          Log Out
-        </button>
-      )}
-    </nav>
+    <div className="mt-4 custom-megamenu-wrapper">
+      <MegaMenu 
+        model={menuItems} 
+        orientation="horizontal" 
+        className="w-full custom-megamenu" 
+        breakpoint="960px"
+      />
+    </div>
   );
 }
