@@ -1,7 +1,7 @@
-import React, { JSX } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
 import { MegaMenu } from 'primereact/megamenu';
+import { MenuItem } from 'primereact/menuitem';
 import { app } from '../firebase';
 import { useAuthStatus } from '../hooks/useAuthStatus';
 import './Navigation.css'; // Add this import for custom styles
@@ -41,39 +41,6 @@ export default function Navigation() {
     e.stopPropagation(); // Stop event from bubbling up to PrimeReact handlers
     navigate(path);
   };
-
-  // Build the menu items for MegaMenu with correct active state
-  // Define interfaces for menu item structure
-  interface MenuItemCommandEvent {
-    originalEvent: React.MouseEvent<HTMLElement, MouseEvent>;
-  }
-
-  interface MenuItemTemplateOptions {
-    className: string;
-    element: HTMLElement;
-    [key: string]: string | number | boolean | HTMLElement | object | null | undefined;
-  }
-
-  interface SubMenuItem {
-    label: string;
-    icon: string;
-    command: (e: MenuItemCommandEvent) => void;
-    className?: string;
-  }
-
-  interface MenuItemCategory {
-    label: string;
-    items: SubMenuItem[];
-  }
-
-  interface MenuItem {
-    label: string;
-    icon: string;
-    template?: (item: MenuItem, options: MenuItemTemplateOptions) => JSX.Element;
-    command?: (e: MenuItemCommandEvent) => void;
-    className?: string;
-    items?: MenuItemCategory[][];
-  }
 
   // Build the menu items for MegaMenu with correct active state
   const menuItems: MenuItem[] = [
