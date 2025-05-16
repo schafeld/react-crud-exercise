@@ -1,3 +1,4 @@
+import React, { JSX } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
 import { MegaMenu } from 'primereact/megamenu';
@@ -26,22 +27,66 @@ export default function Navigation() {
   const isActive = (path: string) => {
     return currentPath === path;
   };
+  
+  // Navigation handler that stops event propagation
+  // Interface for navigation handler parameters
+  interface NavigationEvent {
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>;
+    path: string;
+  }
+
+  // Navigation handler that stops event propagation
+  const handleNavigate = (e: NavigationEvent['e'], path: NavigationEvent['path']): void => {
+    e.preventDefault();
+    e.stopPropagation(); // Stop event from bubbling up to PrimeReact handlers
+    navigate(path);
+  };
 
   // Build the menu items for MegaMenu with correct active state
-  const menuItems = [
+  // Define interfaces for menu item structure
+  interface MenuItemCommandEvent {
+    originalEvent: React.MouseEvent<HTMLElement, MouseEvent>;
+  }
+
+  interface MenuItemTemplateOptions {
+    className: string;
+    element: HTMLElement;
+    [key: string]: string | number | boolean | HTMLElement | object | null | undefined;
+  }
+
+  interface SubMenuItem {
+    label: string;
+    icon: string;
+    command: (e: MenuItemCommandEvent) => void;
+    className?: string;
+  }
+
+  interface MenuItemCategory {
+    label: string;
+    items: SubMenuItem[];
+  }
+
+  interface MenuItem {
+    label: string;
+    icon: string;
+    template?: (item: MenuItem, options: MenuItemTemplateOptions) => JSX.Element;
+    command?: (e: MenuItemCommandEvent) => void;
+    className?: string;
+    items?: MenuItemCategory[][];
+  }
+
+  // Build the menu items for MegaMenu with correct active state
+  const menuItems: MenuItem[] = [
     {
       label: 'Home',
       icon: 'pi pi-fw pi-home',
-      command: () => navigate('/'),
-      template: (item, options) => {
+      template: (item) => {
         return (
           <a 
             href="#" 
             className={`p-menuitem-link ${isActive('/') ? 'active-link' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/');
-            }}
+            onClick={(e) => handleNavigate(e, '/')}
+            onMouseDown={(e) => e.preventDefault()} // Prevent focus
           >
             <span className={`p-menuitem-icon pi pi-fw pi-home`}></span>
             <span className="p-menuitem-text">{item.label}</span>
@@ -52,16 +97,13 @@ export default function Navigation() {
     {
       label: 'About',
       icon: 'pi pi-fw pi-info-circle',
-      command: () => navigate('/about'),
-      template: (item, options) => {
+      template: (item) => {
         return (
           <a 
             href="#" 
             className={`p-menuitem-link ${isActive('/about') ? 'active-link' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/about');
-            }}
+            onClick={(e) => handleNavigate(e, '/about')}
+            onMouseDown={(e) => e.preventDefault()} // Prevent focus
           >
             <span className={`p-menuitem-icon pi pi-fw pi-info-circle`}></span>
             <span className="p-menuitem-text">{item.label}</span>
@@ -72,16 +114,13 @@ export default function Navigation() {
     {
       label: 'App',
       icon: 'pi pi-fw pi-th-large',
-      command: () => navigate('/app'),
-      template: (item, options) => {
+      template: (item) => {
         return (
           <a 
             href="#" 
             className={`p-menuitem-link ${isActive('/app') ? 'active-link' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/app');
-            }}
+            onClick={(e) => handleNavigate(e, '/app')}
+            onMouseDown={(e) => e.preventDefault()} // Prevent focus
           >
             <span className={`p-menuitem-icon pi pi-fw pi-th-large`}></span>
             <span className="p-menuitem-text">{item.label}</span>
@@ -92,16 +131,13 @@ export default function Navigation() {
     {
       label: 'Offers',
       icon: 'pi pi-fw pi-tag',
-      command: () => navigate('/offers'),
-      template: (item, options) => {
+      template: (item) => {
         return (
           <a 
             href="#" 
             className={`p-menuitem-link ${isActive('/offers') ? 'active-link' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/offers');
-            }}
+            onClick={(e) => handleNavigate(e, '/offers')}
+            onMouseDown={(e) => e.preventDefault()} // Prevent focus
           >
             <span className={`p-menuitem-icon pi pi-fw pi-tag`}></span>
             <span className="p-menuitem-text">{item.label}</span>
@@ -121,32 +157,47 @@ export default function Navigation() {
                   { 
                     label: 'Profile', 
                     icon: 'pi pi-fw pi-user-edit',
-                    command: () => navigate('/profile'),
+                    command: (e) => {
+                      e.originalEvent.stopPropagation();
+                      navigate('/profile');
+                    },
                     className: isActive('/profile') ? 'active-menu-item' : ''
                   },
                   { 
                     label: 'Log Out', 
                     icon: 'pi pi-fw pi-power-off',
-                    command: () => handleLogout()
+                    command: (e) => {
+                      e.originalEvent.stopPropagation();
+                      handleLogout();
+                    }
                   }
                 ]
               : [
                   { 
                     label: 'Sign In', 
                     icon: 'pi pi-fw pi-sign-in',
-                    command: () => navigate('/signin'),
+                    command: (e) => {
+                      e.originalEvent.stopPropagation();
+                      navigate('/signin');
+                    },
                     className: isActive('/signin') ? 'active-menu-item' : ''
                   },
                   { 
                     label: 'Sign Up', 
                     icon: 'pi pi-fw pi-user-plus',
-                    command: () => navigate('/signup'),
+                    command: (e) => {
+                      e.originalEvent.stopPropagation();
+                      navigate('/signup');
+                    },
                     className: isActive('/signup') ? 'active-menu-item' : ''
                   },
                   { 
                     label: 'Forgot Password', 
                     icon: 'pi pi-fw pi-lock',
-                    command: () => navigate('/forgot-password'),
+                    command: (e) => {
+                      e.originalEvent.stopPropagation();
+                      navigate('/forgot-password');
+                    },
                     className: isActive('/forgot-password') ? 'active-menu-item' : ''
                   }
                 ]
