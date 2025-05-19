@@ -1,8 +1,10 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuthStatus } from "../hooks/useAuthStatus";
-import { collection, getDocs, query, orderBy, limit, startAfter, QueryDocumentSnapshot, getCountFromServer } from "firebase/firestore";
-import { db } from "../firebase";
+import { collection, getDocs, query, orderBy, limit, startAfter, QueryDocumentSnapshot, getCountFromServer, doc, deleteDoc } from "firebase/firestore";
+import { ref, deleteObject } from "firebase/storage";
+import { db, storage } from "../firebase";
+import { Toast } from "primereact/toast";
 // Add PrimeReact PrimeIcons import:
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
@@ -24,10 +26,8 @@ interface Listing {
 }
 
 export default function Offers() {
-  //const { loggedIn, checkingStatus, user } = useAuthStatus(); // <-- Make sure user is available
   const { loggedIn, checkingStatus, currentUser } = useAuthStatus(); // Use currentUser directly
   const [searchParams, setSearchParams] = useSearchParams();
-  // const navigate = useNavigate();
   
   // Get page from URL or default to page 1
   const currentPage = parseInt(searchParams.get("page") || "1");
@@ -38,6 +38,8 @@ export default function Offers() {
   const [pageCache, setPageCache] = useState<Map<number, Listing[]>>(new Map());
   
   const isLoading = checkingStatus || loading;
+  
+  const toast = useRef<Toast>(null);
   
   // Fetch total count for pagination
   useEffect(() => {
@@ -136,6 +138,54 @@ export default function Offers() {
     fetchListings();
   }, [currentPage]);
   
+  const handleDeleteListing = async (listingId: string, listingImages: string[]) => {
+    if (confirm("Are you sure you want to delete this listing?")) {
+      try {
+        setLoading(true);
+        
+        // 1. Delete all images from storage
+        if (listingImages && listingImages.length > 0) {
+          // First approach: delete images directly from URLs
+          const deletePromises = listingImages.map(async (imageUrl) => {
+            // Extract the path from the URL
+            const imagePath = imageUrl.split('firebasestorage.googleapis.com/')[1].split('?')[0];
+            const fullPath = decodeURIComponent(imagePath.split('/o/')[1]);
+            const imageRef = ref(storage, fullPath);
+            return deleteObject(imageRef);
+          });
+          
+          await Promise.all(deletePromises);
+        }
+        
+        // 2. Delete the listing document
+        const listingRef = doc(db, "listings", listingId);
+        await deleteDoc(listingRef);
+        
+        // 3. Update the UI
+        setListings(prev => prev.filter(listing => listing.id !== listingId));
+        
+        // 4. Show success message
+        toast.current?.show({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Listing deleted successfully',
+          life: 3000
+        });
+        
+      } catch (error) {
+        console.error("Error deleting listing:", error);
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete listing',
+          life: 3000
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  
   // Handle page changes
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -228,6 +278,7 @@ export default function Offers() {
   
   return (
     <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
+      <Toast ref={toast} />
       <h1 className="text-4xl font-bold text-gray-800 mt-6">Recent Listings</h1>
       <p className="text-gray-600 mt-2 mb-8">
         Browse our latest product listings (Page {currentPage} of {totalPages})
@@ -286,14 +337,26 @@ export default function Offers() {
                       </Link>
                       {/* Pencil icon button for owner's listings */}
                       {currentUser && listing.userRef === currentUser.uid && (
-                        <Link
-                          to={`/edit-listing/${listing.id}`}
-                          className="absolute bottom-2 right-2 bg-white rounded-2 px-2 py-1 shadow hover:bg-gray-100 transition"
-                          title="Edit Listing"
-                          style={{ zIndex: 2 }}
-                        >
-                          <i className="pi pi-pencil text-gray-600" style={{ fontSize: "0.8rem" }} />
-                        </Link>
+                        <div className="absolute bottom-2 right-2 flex space-x-2" style={{ zIndex: 2 }}>
+                          <Link
+                            to={`/edit-listing/${listing.id}`}
+                            className="bg-white rounded-2 px-2 py-1 shadow hover:bg-gray-100 transition"
+                            title="Edit Listing"
+                          >
+                            <i className="pi pi-pencil text-gray-600" style={{ fontSize: "0.8rem" }} />
+                          </Link>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleDeleteListing(listing.id, listing.imgUrls || []);
+                            }}
+                            className="bg-white rounded-2 px-2 py-1 shadow hover:bg-gray-100 transition"
+                            title="Delete Listing"
+                          >
+                            <i className="pi pi-trash text-red-600" style={{ fontSize: "0.8rem" }} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   );

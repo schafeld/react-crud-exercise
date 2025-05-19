@@ -40,6 +40,9 @@ service firebase.storage {
       allow read;
       allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024 && // 5MB
         request.resource.contentType.matches('image/.*');
+      // Allow delete only for files that include the user's ID in the path
+      allow delete: if request.auth != null &&
+        resource.name.matches('products/' + request.auth.uid + '.*');
       }
   }
 }
