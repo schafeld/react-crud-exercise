@@ -1,13 +1,13 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuthStatus } from "../hooks/useAuthStatus";
 import { collection, getDocs, query, orderBy, limit, startAfter, QueryDocumentSnapshot, getCountFromServer, doc, deleteDoc } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { Toast } from "primereact/toast";
-// Add PrimeReact PrimeIcons import:
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
+// // Add PrimeReact PrimeIcons import:
+// import "primereact/resources/primereact.min.css";
+// import "primeicons/primeicons.css";
 
 // Configuration constant for number of items per page
 const ITEMS_PER_PAGE = 3;
@@ -58,85 +58,7 @@ export default function Offers() {
     fetchTotalCount();
   }, []);
   
-  // Fetch listings based on current page
-  useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        setLoading(true);
-        
-        // Check if we already have this page cached
-        if (pageCache.has(currentPage)) {
-          setListings(pageCache.get(currentPage) || []);
-          setLoading(false);
-          return;
-        }
-        
-        const listingsRef = collection(db, "listings");
-        const skipCount = (currentPage - 1) * ITEMS_PER_PAGE;
-        
-        // For Firestore pagination, we need to get documents up to the start of our page
-        // and then get the page we want
-        let lastDoc: QueryDocumentSnapshot | null = null;
-        
-        // If we're not on the first page, we need to find our starting point
-        if (currentPage > 1) {
-          // Find the document that's right before our page starts
-          const prevPageQuery = query(
-            listingsRef,
-            orderBy("createdAt", "desc"),
-            limit(skipCount)
-          );
-          const prevPageSnapshot = await getDocs(prevPageQuery);
-          lastDoc = prevPageSnapshot.docs[prevPageSnapshot.docs.length - 1];
-        }
-        
-        // Create the query for the current page
-        let pageQuery;
-        if (lastDoc) {
-          pageQuery = query(
-            listingsRef,
-            orderBy("createdAt", "desc"),
-            startAfter(lastDoc),
-            limit(ITEMS_PER_PAGE)
-          );
-        } else {
-          pageQuery = query(
-            listingsRef,
-            orderBy("createdAt", "desc"),
-            limit(ITEMS_PER_PAGE)
-          );
-        }
-        
-        // Execute the query
-        const querySnap = await getDocs(pageQuery);
-        
-        // Process results
-        const listingsData: Listing[] = [];
-        querySnap.forEach((doc) => {
-          const data = doc.data();
-          listingsData.push({
-            id: doc.id,
-            title: data.title,
-            price: data.price,
-            imgUrls: data.imgUrls,
-            createdAt: data.createdAt,
-            isNew: data.isNew,
-            userRef: data.userRef, // <-- explicitly map userRef
-          });
-        });
-        
-        // Cache the results
-        setPageCache(prev => new Map(prev).set(currentPage, listingsData));
-        setListings(listingsData);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching listings:", error);
-        setLoading(false);
-      }
-    };
-    
-    fetchListings();
-  }, [currentPage]);
+
   
   const handleDeleteListing = async (listingId: string, listingImages: string[]) => {
     if (confirm("Are you sure you want to delete this listing?")) {
@@ -161,10 +83,41 @@ export default function Offers() {
         const listingRef = doc(db, "listings", listingId);
         await deleteDoc(listingRef);
         
-        // 3. Update the UI
+        // 3. Update the UI - both current listings and cache
         setListings(prev => prev.filter(listing => listing.id !== listingId));
         
-        // 4. Show success message
+        // 4. Update the page cache to remove the deleted listing from all cached pages
+        setPageCache(prev => {
+          const newCache = new Map(prev);
+          // Update each page in the cache
+          newCache.forEach((pageListings, pageNum) => {
+            newCache.set(
+              pageNum, 
+              pageListings.filter(listing => listing.id !== listingId)
+            );
+          });
+          return newCache;
+        });
+        
+        // 5. Refresh data if the current page becomes empty
+        const currentPageData = pageCache.get(currentPage) || [];
+        const updatedCurrentPageData = currentPageData.filter(listing => listing.id !== listingId);
+        if (updatedCurrentPageData.length === 0 && currentPage > 1) {
+          // If the page is now empty and it's not the first page, go to previous page
+          handlePageChange(currentPage - 1);
+        } else if (updatedCurrentPageData.length === 0) {
+          // If it's the first page and now empty, we need to refresh
+          fetchListings();
+        }
+        
+        // 6. Update total count and pages
+        const listingsRef = collection(db, "listings");
+        const snapshot = await getCountFromServer(listingsRef);
+        const totalCount = snapshot.data().count;
+        const pages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+        setTotalPages(pages > 0 ? pages : 1);
+        
+        // 7. Show success message
         toast.current?.show({
           severity: 'success',
           summary: 'Success',
@@ -185,6 +138,87 @@ export default function Offers() {
       }
     }
   };
+
+  // Add this helper function for the refresh case
+  const fetchListings = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Clear the cache for the current page to force a fresh fetch
+      setPageCache(prev => {
+        const newCache = new Map(prev);
+        newCache.delete(currentPage);
+        return newCache;
+      });
+      
+      const listingsRef = collection(db, "listings");
+      const skipCount = (currentPage - 1) * ITEMS_PER_PAGE;
+      
+      // For Firestore pagination, we need to get documents up to the start of our page
+      // and then get the page we want
+      let lastDoc: QueryDocumentSnapshot | null = null;
+      
+      // If we're not on the first page, we need to find our starting point
+      if (currentPage > 1) {
+        // Find the document that's right before our page starts
+        const prevPageQuery = query(
+          listingsRef,
+          orderBy("createdAt", "desc"),
+          limit(skipCount)
+        );
+        const prevPageSnapshot = await getDocs(prevPageQuery);
+        lastDoc = prevPageSnapshot.docs[prevPageSnapshot.docs.length - 1];
+      }
+      
+      // Create the query for the current page
+      let pageQuery;
+      if (lastDoc) {
+        pageQuery = query(
+          listingsRef,
+          orderBy("createdAt", "desc"),
+          startAfter(lastDoc),
+          limit(ITEMS_PER_PAGE)
+        );
+      } else {
+        pageQuery = query(
+          listingsRef,
+          orderBy("createdAt", "desc"),
+          limit(ITEMS_PER_PAGE)
+        );
+      }
+      
+      // Execute the query
+      const querySnap = await getDocs(pageQuery);
+      
+      // Process results
+      const listingsData: Listing[] = [];
+      querySnap.forEach((doc) => {
+        const data = doc.data();
+        listingsData.push({
+          id: doc.id,
+          title: data.title,
+          price: data.price,
+          imgUrls: data.imgUrls,
+          createdAt: data.createdAt,
+          isNew: data.isNew,
+          userRef: data.userRef,
+        });
+      });
+      
+      // Cache the results
+      setPageCache(prev => new Map(prev).set(currentPage, listingsData));
+      setListings(listingsData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+      setLoading(false);
+    }
+  }, [currentPage]);
+
+  // Fetch listings based on current page
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
   
   // Handle page changes
   const handlePageChange = (page: number) => {
