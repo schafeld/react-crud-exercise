@@ -19,6 +19,7 @@ export default function CreateListing() {
     detailedDescription: string;
     price: number;
     images: File[];
+    displayLocation: boolean; // Add this flag
     latitude: number | "";
     longitude: number | "";
     address: string;
@@ -31,6 +32,7 @@ export default function CreateListing() {
     detailedDescription: "",
     price: 0,
     images: [],
+    displayLocation: false, // Default to false
     latitude: "",
     longitude: "",
     address: "",
@@ -117,9 +119,10 @@ export default function CreateListing() {
       }
 
       if (
-        formData.latitude === "" ||
+        formData.displayLocation && 
+        (formData.latitude === "" ||
         formData.longitude === "" ||
-        !formData.address.trim()
+        !formData.address.trim())
       ) {
         toast.current?.show({
           severity: 'error',
@@ -145,11 +148,12 @@ export default function CreateListing() {
         imgUrls: imgUrls, // Store array of image URLs
         userRef: auth.currentUser.uid,
         createdAt: serverTimestamp(),
-        location: {
+        displayLocation: formData.displayLocation, // Add the flag
+        location: formData.displayLocation ? {
           latitude: formData.latitude,
           longitude: formData.longitude,
           address: formData.address,
-        },
+        } : null, // Only include location data if displayLocation is true
       };
       
       // 3. Save to Firestore
@@ -305,15 +309,42 @@ export default function CreateListing() {
           </div>
         </div>
 
-        {/* Location Selector */}
+        {/* Display Location Toggle */}
         <div className="mb-6">
-          <LocationSelector
-            latitude={formData.latitude}
-            longitude={formData.longitude}
-            address={formData.address}
-            onChange={handleLocationChange}
-          />
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Location Information
+          </label>
+          <div className="flex items-center">
+            <button
+              type="button"
+              className={`py-2 px-4 rounded-md ${
+                formData.displayLocation 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-700'
+              }`}
+              onClick={() => setFormData({ ...formData, displayLocation: !formData.displayLocation })}
+            >
+              {formData.displayLocation ? 'Hide location' : 'Display location'}
+            </button>
+            <span className="ml-3 text-sm text-gray-600">
+              {formData.displayLocation 
+                ? 'Location will be visible to customers' 
+                : 'Location will be hidden from customers'}
+            </span>
+          </div>
         </div>
+
+        {/* Location Selector - only show when displayLocation is true */}
+        {formData.displayLocation && (
+          <div className="mb-6">
+            <LocationSelector
+              latitude={formData.latitude}
+              longitude={formData.longitude}
+              address={formData.address}
+              onChange={handleLocationChange}
+            />
+          </div>
+        )}
 
         {/* Line 7: Image upload field */}
         <div className="mb-6">

@@ -18,6 +18,7 @@ interface ListingData {
   price: number;
   imgUrls: string[];
   userRef: string;
+  displayLocation?: boolean; // Add this flag
   createdAt: {
     seconds: number;
     nanoseconds: number; // Firestore timestamp format
@@ -215,8 +216,8 @@ export default function DisplayListing() {
                 <p className="text-gray-600 whitespace-pre-line">{listing.detailedDescription}</p>
               </div>
 
-              {/* Location info */}
-              {listing.location && listing.location.latitude && listing.location.longitude && (
+              {/* Location info - only show if displayLocation is true */}
+              {listing.displayLocation && listing.location && listing.location.latitude && listing.location.longitude && (
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold text-gray-700 mb-2">Location</h3>
                   <div className="text-gray-600 text-sm mb-1">

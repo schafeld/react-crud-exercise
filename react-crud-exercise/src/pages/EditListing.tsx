@@ -19,6 +19,7 @@ interface ListingData {
   price: number;
   imgUrls: string[];
   userRef: string;
+  displayLocation?: boolean; // Add this flag
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -33,6 +34,7 @@ interface ListingData {
 export default function EditListing() {
   const [formData, setFormData] = useState<Omit<ListingData, 'userRef' | 'createdAt' | 'imgUrls'> & {
     imgUrls: string[];
+    displayLocation: boolean; // Add this property
     latitude: number | "";
     longitude: number | "";
     address: string;
@@ -45,6 +47,7 @@ export default function EditListing() {
     detailedDescription: "",
     price: 0,
     imgUrls: [],
+    displayLocation: false, // Default to false
     latitude: "",
     longitude: "",
     address: "",
@@ -96,6 +99,7 @@ export default function EditListing() {
             detailedDescription: data.detailedDescription,
             price: data.price,
             imgUrls: [],
+            displayLocation: data.displayLocation || false, // Get displayLocation from data or default to false
             latitude: data.location?.latitude ?? "",
             longitude: data.location?.longitude ?? "",
             address: data.location?.address ?? "",
@@ -233,11 +237,12 @@ export default function EditListing() {
         detailedDescription: formData.detailedDescription,
         price: formData.price,
         imgUrls: imageUrls,
-        location: {
+        displayLocation: formData.displayLocation, // Add displayLocation flag
+        location: formData.displayLocation ? {
           latitude: formData.latitude,
           longitude: formData.longitude,
           address: formData.address,
-        },
+        } : null, // Only include location data if displayLocation is true
         updatedAt: serverTimestamp(),
       });
       
@@ -412,15 +417,37 @@ export default function EditListing() {
             </div>
           </div>
           
-          {/* Location Selector */}
+          {/* Display Location Toggle */}
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Location</h2>
-            <LocationSelector
-              latitude={formData.latitude}
-              longitude={formData.longitude}
-              address={formData.address}
-              onChange={handleLocationChange}
-            />
+            <div className="flex items-center mb-4">
+              <button
+                type="button"
+                className={`py-2 px-4 rounded-md ${
+                  formData.displayLocation 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-200 text-gray-700'
+                }`}
+                onClick={() => setFormData({ ...formData, displayLocation: !formData.displayLocation })}
+              >
+                {formData.displayLocation ? 'Hide location' : 'Display location'}
+              </button>
+              <span className="ml-3 text-sm text-gray-600">
+                {formData.displayLocation 
+                  ? 'Location will be visible to customers' 
+                  : 'Location will be hidden from customers'}
+              </span>
+            </div>
+
+            {/* Location Selector - only show when displayLocation is true */}
+            {formData.displayLocation && (
+              <LocationSelector
+                latitude={formData.latitude}
+                longitude={formData.longitude}
+                address={formData.address}
+                onChange={handleLocationChange}
+              />
+            )}
           </div>
 
           {/* Images */}
