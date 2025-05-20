@@ -121,8 +121,9 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 ## TODOs / Future Work
 
 - [ ] Add Storybook
-- [ ] Add content database/s (aim for basic CMS or blog or "shopping window")
-- [ ] Add unit tests (Jest?)
+- [ ] Add content database/s (aim for basic CMS or blog or "shopping window", Builder.io CMS?)
+- [x] Set up unit tests
+- [ ] Add unit tests
 - [ ] Add e2e tests (Playwright?)
 - [ ] Add i18n
 - [ ] Add headless UI, e.g. TansStack Table
@@ -133,10 +134,13 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Maybe change displayName behavior in Firebase auth to match Firestore displayName, see [Hints and Ideas](#hints-and-ideas) below.
 - [ ] Vendor profiles should have a custom vendor image (email login user do not have a profile image, Google OAuth users do) and a vendor link (instead of their email address being exposed)
 - [ ] Add configuration and filter for currency display
+- [x] Make location optional
+- [ ] Handle case of user trying to upload more than 5 images (max images per product)
+- [ ] Handle case of user trying to upload an image larger than 5MB (max image size)
 
 Additional features:
 
-- [ ] Add a "protected content" wrapper component for page content exclusive to logged-in users
+- [x] Add a "protected content" wrapper component for page content exclusive to logged-in users
 
 Actual refactoring suggestions:
 
@@ -155,3 +159,128 @@ Images by Unsplash are licensed under the [Unsplash License](https://unsplash.co
 - ["Road through trees", Kellen Riggen](https://unsplash.com/de/fotos/eine-kurvige-strasse-mit-einem-baum-an-der-seite-ZHnTWmiz000)
 - ["Welcome aboard, life saver", Adam Cai](https://unsplash.com/de/fotos/ein-rettungsschwimmer-der-an-einer-wand-hangt-mit-einem-willkommensschild-an-bord-_Sp4jNiW_j0)
 - ["Welcome Back", Nick Fewings](https://unsplash.com/de/fotos/ein-willkommensschild-mit-einem-smiley-bTRsbY5RLr4)
+
+## Installation of the complete shop (PRELIMINARY, 2025-05-19)
+
+Created with prompt:
+
+Please look at the entire @workspace. Can you deduce what a novice user, after checking out this project, would have to do to get the shop running (including Firebase set-up).
+Please add instructions after "Installation of the complete shop" in the Readme.
+
+---
+
+Follow these steps to set up and run the React CRUD Exercise project:
+
+### 1. Clone and Install Dependencies
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/react-crud-exercise.git
+cd react-crud-exercise
+
+# Install dependencies
+npm install
+```
+
+### 2. Set up Firebase
+
+1. Create a Firebase account at [firebase.google.com](https://firebase.google.com/) if you don't have one
+2. Create a new Firebase project from the [Firebase Console](https://console.firebase.google.com/)
+3. Enable the following services:
+   - Authentication (Email/Password and Google Sign-In)
+   - Firestore Database
+   - Storage
+
+### 3. Set up Firebase Authentication
+
+1. In the Firebase Console, go to **Authentication** → **Sign-in method**
+2. Enable **Email/Password** and **Google** authentication providers
+
+### 4. Set up Firestore Database
+
+1. In the Firebase Console, go to **Firestore Database** → **Create database**
+2. Start in test mode, then add security rules
+3. Add the following security rules in **Firestore Database** → **Rules**:
+
+```
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Listings
+    match /listings/{listing} {
+      allow read;
+      allow create: if request.auth != null && request.resource.data.imgUrls.size() < 7;
+      allow delete: if resource.data.userRef == request.auth.uid;
+      allow update: if resource.data.userRef == request.auth.uid;
+    }
+    // Users
+    match /users/{user} {
+      allow read;
+      allow create;
+      allow update: if request.auth.uid == user;
+    }
+  }
+}
+```
+
+### 5. Set up Firebase Storage
+
+1. In the Firebase Console, go to **Storage** → **Get started**
+2. Start in test mode, then add security rules
+3. Add the following security rules in **Storage** → **Rules**:
+
+```
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024 && // 5MB
+        request.resource.contentType.matches('image/.*');
+      // Allow delete only for files that include the user's ID in the path
+      allow delete: if request.auth != null &&
+        resource.name.matches('products/' + request.auth.uid + '.*');
+      }
+  }
+}
+```
+
+### 6. Create Firebase Index for Filtering
+
+Create a composite index as described in Firebase.md:
+
+1. Go to **Firestore Database** → **Indexes** → **Add Index**
+2. Set:
+   - **Collection ID:** `listings`
+   - **Fields:**
+     - `isNew` (Ascending)
+     - `createdAt` (Descending)
+3. Click **Create index** and wait for it to build
+
+### 7. Configure Firebase in Your Project
+
+1. In the Firebase Console, go to **Project Overview** → **Project settings**
+2. Scroll down to **Your apps** and click the Web icon (</>) to add a web app
+3. Register your app and copy the Firebase configuration
+4. Edit firebase.ts and replace the `firebaseConfig` object with your own:
+
+```typescript
+const firebaseConfig: FirebaseConfig = {
+  apiKey: 'YOUR_API_KEY',
+  authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
+  projectId: 'YOUR_PROJECT_ID',
+  storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+  appId: 'YOUR_APP_ID',
+};
+```
+
+### 8. Run the Development Server
+
+```bash
+npm run dev
+```
+
+Your application should now be running at http://localhost:5173
