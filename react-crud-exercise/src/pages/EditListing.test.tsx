@@ -1,14 +1,15 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import EditListing from '../pages/EditListing';
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
 
 // Create a simplified mock of the EditListing component for testing the location toggle feature
 vi.mock('../pages/EditListing', () => ({
   __esModule: true,
-  default: () => {
+  default: function EditListingMock() {
     const [displayLocation, setDisplayLocation] = React.useState(false);
-    const [location, setLocation] = React.useState({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_location, setLocation] = React.useState({
       latitude: "",
       longitude: "",
       address: ""
@@ -42,8 +43,8 @@ vi.mock('../pages/EditListing', () => ({
             <div data-testid="location-selector">
               <button 
                 onClick={() => setLocation({ 
-                  latitude: 40.7128, 
-                  longitude: -74.006, 
+                  latitude: "40.7128", 
+                  longitude: "-74.006", 
                   address: "New York, NY" 
                 })}
                 data-testid="update-location-button"
@@ -89,7 +90,7 @@ describe('EditListing Component', () => {
   });
 
   test('should show location selector when displayLocation is true', () => {
-    const { rerender } = render(<EditListing />);
+    render(<EditListing />);
     
     // First verify it's not shown
     expect(screen.queryByTestId('location-selector')).not.toBeInTheDocument();
