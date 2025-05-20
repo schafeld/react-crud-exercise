@@ -16,7 +16,7 @@ interface FirebaseConfig {
 const firebaseConfig: FirebaseConfig = {
   // TODO: Connect API-Key with specific domain for deployment!
   // Be absolutely sure to have DB rules set up to prevent unauthorized access.
-  apiKey: '', // Add your Firebase API key here
+  apiKey: '', // Add your Firebase API key here // TODO: dotenv?
   authDomain: 'react-crud-exercise.firebaseapp.com',
   projectId: 'react-crud-exercise',
   storageBucket: 'react-crud-exercise.firebasestorage.app',
