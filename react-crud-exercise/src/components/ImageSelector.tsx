@@ -1,5 +1,3 @@
-import React from "react";
-
 interface ImageSelectorProps {
   existingImages?: string[];
   onRemoveExistingImage?: (index: number) => void;
