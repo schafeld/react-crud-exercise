@@ -1,4 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+/// <reference types="vitest/globals" />
+import { describe, it, expect, beforeEach } from 'vitest'
+import { vi } from 'vitest'
+import type { Mock } from 'vitest'
+// Removed duplicate import of Mock
+// import type { Mock } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useAuthStatus } from './useAuthStatus'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
@@ -17,11 +22,11 @@ describe('useAuthStatus hook', () => {
   it('should return initial state with checking status true', () => {
     // Setup
     // Mock getAuth to return a mock auth object
-    (getAuth as vi.Mock).mockReturnValue({});
+    (getAuth as Mock).mockReturnValue({});
     // Mock onAuthStateChanged to return an unsubscribe function but not call the callback immediately
     // This allows us to check the initial state where checkingStatus is true.
     const mockUnsubscribe = vi.fn();
-    (onAuthStateChanged as vi.Mock).mockImplementation(() => mockUnsubscribe);
+    (onAuthStateChanged as Mock).mockImplementation(() => mockUnsubscribe);
 
     // Execute
     const { result } = renderHook(() => useAuthStatus());
@@ -35,9 +40,9 @@ describe('useAuthStatus hook', () => {
   it('should set loggedIn to true when user is authenticated', async () => {
     // Setup
     const mockUser = { uid: '123', email: 'test@example.com' };
-    (getAuth as vi.Mock).mockReturnValue({});
+    (getAuth as Mock).mockReturnValue({});
 
-    (onAuthStateChanged as vi.Mock).mockImplementation(
+    (onAuthStateChanged as Mock).mockImplementation(
       (_: unknown, callback: (user: typeof mockUser | null) => void) => {
         callback(mockUser);
         return () => {}; // Return a mock unsubscribe function
@@ -57,9 +62,9 @@ describe('useAuthStatus hook', () => {
 
   it('should set loggedIn to false and currentUser to null when user is not authenticated', async () => {
     // Setup
-    (getAuth as vi.Mock).mockReturnValue({});
+    (getAuth as Mock).mockReturnValue({});
 
-    (onAuthStateChanged as vi.Mock).mockImplementation(
+    (onAuthStateChanged as Mock).mockImplementation(
       (_: unknown, callback: (user: null) => void) => {
         callback(null);
         return () => {}; // Return a mock unsubscribe function
@@ -81,8 +86,8 @@ describe('useAuthStatus hook', () => {
     // Setup
     const mockAuth = {};
     const mockUnsubscribe = vi.fn();
-    (getAuth as vi.Mock).mockReturnValue(mockAuth);
-    (onAuthStateChanged as vi.Mock).mockReturnValue(mockUnsubscribe);
+    (getAuth as Mock).mockReturnValue(mockAuth);
+    (onAuthStateChanged as Mock).mockReturnValue(mockUnsubscribe);
 
     // Execute
     const { unmount } = renderHook(() => useAuthStatus());
