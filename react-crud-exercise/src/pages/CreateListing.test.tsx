@@ -141,7 +141,7 @@ vi.mock('../components/ImageSelector', () => ({
 // Mock LocationSelector to avoid rendering issues
 vi.mock('../components/LocationSelector', () => ({
   __esModule: true,
-  default: ({ latitude, longitude, address, onChange }: any) => (
+  default: ({ address, onChange }: any) => (
     <div>
       <label>
         Location
