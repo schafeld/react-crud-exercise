@@ -143,6 +143,7 @@ This project was inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Checkout process
 - [ ] Add payment processing (Stripe?)
 - [ ] Add contact form for site feedback (and for individual vendors?)
+- [ ] Allow user to change password
 
 Additional features:
 
