@@ -115,8 +115,8 @@ Firebase documentation:
 
 ## Origin and Inspiration
 
-This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
-](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. But the code implementation and the libraries used deviate considerably as this project is upgraded to use React 19, Vite, PrimeReact (with PrimeIcons), and TypeScript. You will _not_ be able to follow along with the course.
+This project was inspired by the [ReactJS and Tailwind CSS Fundamentals
+](https://www.coursera.org/learn/packt-reactjs-and-tailwind-css-fundamentals-szmrn/home/info) taught by Stackt on Coursera. I took the course (including [certificate](https://www.coursera.org/account/accomplishments/specialization/8EP9S2HKOPVR)), but for this code implementation I deliberately chose different libraries ans set-up, used TypeScript and the most recent version of React. Also the features differ significantly from the tutorial. You will _not_ be able to follow along with the course with this code.
 
 ## TODOs / Future Work
 
@@ -127,8 +127,9 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [ ] Add e2e tests (Playwright?)
 - [ ] Add i18n
 - [ ] Add headless UI, e.g. TansStack Table
-- [ ] Add documentation / set up instructions / tutorial
+- [ ] Add/update documentation / set up instructions / tutorial
 - [ ] Refactor / restructure code
+- [ ] Refactor to use same component for create and edit product?
 - [ ] Implement a proper, consistent UI design
 - [ ] Add Figma design?
 - [ ] Maybe change displayName behavior in Firebase auth to match Firestore displayName, see [Hints and Ideas](#hints-and-ideas) below.
@@ -137,6 +138,11 @@ This project is inspired by the [ReactJS and Tailwind CSS Fundamentals
 - [x] Make location optional
 - [ ] Handle case of user trying to upload more than 5 images (max images per product)
 - [ ] Handle case of user trying to upload an image larger than 5MB (max image size)
+- [ ] Add more distinctive user roles (admin, vendor, user) and permissions
+- [ ] Wishlist/bookmarks for products
+- [ ] Checkout process
+- [ ] Add payment processing (Stripe?)
+- [ ] Add contact form for site feedback (and for individual vendors?)
 
 Additional features:
 
